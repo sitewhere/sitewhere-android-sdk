@@ -19,9 +19,15 @@ import com.sitewhere.androidsdk.messaging.IToSiteWhere;
 import com.sitewhere.androidsdk.messaging.SiteWhereMessagingException;
 import com.sitewhere.androidsdk.mqtt.MqttService;
 import com.sitewhere.device.communication.protobuf.proto.Sitewhere;
+import com.sitewhere.spi.device.event.IDeviceEventOriginator;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
 
@@ -362,7 +368,6 @@ public class SiteWhereMessageClient {
     }
 
     protected void onReceivedCustomCommand(byte[] payload) {
-        /*
         try {
             ByteArrayInputStream encoded = new ByteArrayInputStream(payload);
             ObjectInputStream in = new ObjectInputStream(encoded);
@@ -406,7 +411,6 @@ public class SiteWhereMessageClient {
         } catch (InvocationTargetException e) {
             Log.e(TAG, "Unable to call method for command.", e);
         }
-        */
     }
 
 
