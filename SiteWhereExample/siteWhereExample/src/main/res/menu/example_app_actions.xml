@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_setup_wizard"
+        android:title="@string/action_setup_wizard"/>
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/action_settings"/>
+    
+</menu>

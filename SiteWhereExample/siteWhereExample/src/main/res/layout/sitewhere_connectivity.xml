@@ -1,0 +1,166 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp" >
+
+        <TextView
+            android:id="@+id/sitewhere_api_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="@string/sitewhere_api_title"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/sitewhere_api_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="@string/sitewhere_api_label" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp" >
+
+            <EditText
+                android:id="@+id/sitewhere_api"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="textUri" />
+
+            <Button
+                android:id="@+id/sitewhere_api_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sitewhere_api_submit" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sitewhere_api_verify_grp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/sitewhere_api_verify"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#005500" />
+
+            <ImageView
+                android:id="@+id/sitewhere_host_api_verify_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/sitewhere_api_verify_check_cd"
+                android:src="@drawable/check"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/sitewhere_api_verify_progress"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/sitewhere_mqtt_divider"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/sitewhere_mqtt_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="@string/sitewhere_mqtt_title"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/sitewhere_mqtt_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="@string/sitewhere_mqtt_label"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/sitewhere_mqtt_host_grp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone" >
+
+            <EditText
+                android:id="@+id/sitewhere_mqtt"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="textUri" />
+
+            <Button
+                android:id="@+id/sitewhere_mqtt_submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sitewhere_mqtt_submit" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/sitewhere_mqtt_verify_grp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/sitewhere_mqtt_verify"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#005500" />
+
+            <ImageView
+                android:id="@+id/sitewhere_mqtt_verify_check"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/sitewhere_mqtt_verify_check_cd"
+                android:src="@drawable/check"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:id="@+id/sitewhere_mqtt_verify_progress"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:visibility="visible" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/sitewhere_wizard_complete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/sitewhere_wizard_complete"
+            android:visibility="gone" />
+    </LinearLayout>
+
+</ScrollView>

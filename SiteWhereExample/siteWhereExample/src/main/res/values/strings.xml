@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <string name="app_name">SiteWhere</string>
+    
+    <string name="overlay_title">Sensor Readings</string>
+    <string name="overlay_image_cdesc">SiteWhere Logo</string>
+    
+    <string name="overlay_lat_label">Lat:</string>
+    <string name="overlay_lon_label">Lon:</string>
+    <string name="overlay_alt_label">Alt:</string>
+    
+    <string name="overlay_rotx_label">RotX:</string>
+    <string name="overlay_roty_label">RotY:</string>
+    <string name="overlay_rotz_label">RotZ:</string>
+
+    <!-- ActionBar Actions -->
+    <string name="action_setup_wizard">Setup Wizard</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Dialog messages -->
+    <string name="sitewhere_no_network_title">Network Not Available</string>
+    <string name="sitewhere_no_network_message">SiteWhere requires a network connection to communicate with the remote server.</string>
+
+    <!-- SiteWhere API wizard -->
+    <string name="sitewhere_api_title">SiteWhere Host Information</string>
+    <string name="sitewhere_api_label">Enter hostname for SiteWhere server including port number. (e.g. my.sitewhere.server:8080).</string>
+    <string name="sitewhere_api_submit">Verify</string>
+    <string name="sitewhere_api_verify_check_cd">SiteWhere API URL Verified</string>
+
+    <!-- SiteWhere MQTT wizard -->
+    <string name="sitewhere_mqtt_title">MQTT Broker Information</string>
+    <string name="sitewhere_mqtt_label">Enter hostname for MQTT broker including port number. (e.g. my.sitewhere.server:1883).</string>
+    <string name="sitewhere_mqtt_submit">Verify</string>
+    <string name="sitewhere_mqtt_verify_check_cd">SiteWhere API URL Verified</string>
+
+    <!-- Connectivity wizard -->
+    <string name="sitewhere_wizard_complete">Continue</string>
+
+    <!-- SiteWhere API connectivity preferences -->
+    <string name="pref_sw_api">SiteWhere API Connectivity</string>
+    <string name="pref_sw_api_uri_dialog_title">Enter SiteWhere Host Information</string>
+    <string name="pref_sw_api_uri_title">SiteWhere Host</string>
+    <string name="pref_sw_api_uri_summary">Hostname for accessing SiteWhere APIs (hostname:port)</string>
+
+    <!-- SiteWhere MQTT connectivity preferences -->
+    <string name="pref_sw_mqtt">SiteWhere MQTT Connectivity</string>
+    <string name="pref_sw_mqtt_uri_dialog_title">Enter MQTT Broker Information</string>
+    <string name="pref_sw_mqtt_uri_title">MQTT Host</string>
+    <string name="pref_sw_mqtt_uri_summary">Hostname for MQTT Broker (hostname:port)</string>
+</resources>

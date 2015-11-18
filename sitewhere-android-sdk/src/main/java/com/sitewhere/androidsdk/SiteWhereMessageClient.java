@@ -262,6 +262,30 @@ public class SiteWhereMessageClient {
         sendAlert(hardwareId, "", type, message, eventDate);
     }
 
+    public void sendDeviceRegistration(String hardwareId, String specificationToken, String originator, @Nullable String siteToken) throws SiteWhereMessagingException {
+        Sitewhere.SiteWhere.RegisterDevice.Builder rb = Sitewhere.SiteWhere.RegisterDevice.newBuilder();
+        rb.setHardwareId(hardwareId).setSpecificationToken(specificationToken);
+        if (siteToken != null) {
+            rb.setSiteToken(siteToken);
+        }
+        sendMessage(Sitewhere.SiteWhere.Command.SEND_REGISTRATION, rb.build(), originator, "registration");
+    }
+
+    /**
+     * Send an acknowledgement event to SiteWhere.
+     *
+     * @param hardwareId
+     * @param originator
+     * @param message
+     * @throws SiteWhereMessagingException
+     */
+    public void sendAck(String hardwareId, String originator, String message)
+            throws SiteWhereMessagingException {
+        Sitewhere.SiteWhere.Acknowledge.Builder builder = Sitewhere.SiteWhere.Acknowledge.newBuilder();
+        Sitewhere.SiteWhere.Acknowledge ack = builder.setHardwareId(hardwareId).setMessage(message).build();
+        sendMessage(Sitewhere.SiteWhere.Command.SEND_ACKNOWLEDGEMENT, ack, originator, "ack");
+    }
+
     /**
      * Send a measurement event to SiteWhere.
      *
