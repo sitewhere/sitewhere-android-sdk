@@ -42,6 +42,13 @@ public interface IMqttInteractionManager {
 	 */
 	public void send(byte[] payload) throws SiteWhereMqttException;
 
+    /**
+     * Subscribes to a SiteWhere event message topic
+     * @param topic
+     * @throws SiteWhereMqttException
+     */
+	public void subscribe(String topic) throws SiteWhereMqttException;
+
 	/**
 	 * Handle topic-related disconnect logic.
 	 * 

@@ -101,12 +101,26 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 		}
 	}
 
+	@Override
+	public void subscribe(String topic) throws SiteWhereMqttException {
+		if (connection == null) {
+            throw new SiteWhereMqttException("Attempting to subscribe to a topic while disconnected.");
+        }
+        try {
+            Topic eventTopic = new Topic(topic, QoS.EXACTLY_ONCE);
+            Log.d(MqttService.TAG, "Event topic: " + eventTopic.name());
+            connection.subscribe(new Topic[]{eventTopic});
+        } catch (Exception e) {
+            throw new SiteWhereMqttException("Unable to subscribe to topic " + topic);
+        }
+	}
+
 	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sitewhere.android.mqtt.IMqttInteractionManager#disconnect(java.lang.String,
-	 * org.fusesource.mqtt.client.BlockingConnection)
-	 */
+         * (non-Javadoc)
+         *
+         * @see com.sitewhere.android.mqtt.IMqttInteractionManager#disconnect(java.lang.String,
+         * org.fusesource.mqtt.client.BlockingConnection)
+         */
 	@Override
 	public void disconnect(String hardwareId, BlockingConnection connection) throws SiteWhereMqttException {
 		try {
@@ -140,7 +154,7 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 					} else if (message.getTopic().startsWith(getSystemTopicPrefix())) {
 						callback.onSystemCommandReceived(message.getTopic(), message.getPayload());
 					} else {
-						Log.w(MqttService.TAG, "Response from unknown topic: " + message.getTopic());
+						callback.onEventMessageReceived(message.getTopic(), message.getPayload());
 					}
 				} catch (InterruptedException e) {
 					Log.d(MqttService.TAG, "Device event processor interrupted.");

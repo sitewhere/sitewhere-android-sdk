@@ -11,6 +11,9 @@ interface IFromSiteWhere {
 	
 	/** Called when a custom command is received */
 	void receivedCustomCommand(in byte[] command);
+
+	/** Called when a event message is received */
+	void receivedEventMessage(in String topic, in byte[] message);
 	
 	/** Called when disconnected from SiteWhere */
 	void disconnected();

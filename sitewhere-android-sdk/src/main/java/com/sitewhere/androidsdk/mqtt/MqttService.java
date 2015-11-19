@@ -378,13 +378,23 @@ public class MqttService extends Service {
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * com.sitewhere.android.messaging.IToSiteWhere#unregister(com.sitewhere.android.messaging
-		 * .IFromSiteWhere)
-		 */
+        @Override
+        public void registerForEvents(String topic) throws RemoteException {
+            try {
+                mqttManager.subscribe(topic);
+            } catch (SiteWhereMqttException e) {
+                Log.e(TAG, "Error subscribing to topic " + topic, e);
+                throw new RemoteException();
+            }
+        }
+
+        /*
+                 * (non-Javadoc)
+                 *
+                 * @see
+                 * com.sitewhere.android.messaging.IToSiteWhere#unregister(com.sitewhere.android.messaging
+                 * .IFromSiteWhere)
+                 */
 		@Override
 		public void unregister(IFromSiteWhere client) throws RemoteException {
 			Log.d(TAG, "Sending unregister request...");

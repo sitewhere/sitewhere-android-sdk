@@ -15,17 +15,19 @@
  */
 package com.sitewhere.android.example;
 
-import android.app.Activity;
 import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sitewhere.android.generated.Android;
 import com.sitewhere.android.generated.Android.AndroidSpecification._Header;
 import com.sitewhere.android.generated.Android.AndroidSpecification.changeBackground;
@@ -38,6 +40,7 @@ import com.sitewhere.device.communication.protobuf.proto.Sitewhere;
 import com.sitewhere.device.communication.protobuf.proto.Sitewhere.Device.DeviceStreamAck;
 import com.sitewhere.device.communication.protobuf.proto.Sitewhere.Device.Header;
 import com.sitewhere.device.communication.protobuf.proto.Sitewhere.Device.RegistrationAck;
+import com.sitewhere.rest.model.device.event.DeviceMeasurements;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -49,7 +52,7 @@ import java.util.Map;
  * 
  * @author Derek
  */
-public class SiteWhereExample extends Activity implements IConnectivityWizardListener, SiteWhereMessageClient.SiteWhereMessageClientCallback {
+public class SiteWhereExample extends AppCompatActivity implements IConnectivityWizardListener, SiteWhereMessageClient.SiteWhereMessageClientCallback {
 
 	/** Tag for logging */
 	private static final String TAG = "SiteWhereExample";
@@ -177,6 +180,11 @@ public class SiteWhereExample extends Activity implements IConnectivityWizardLis
 	public void onConnectedToSiteWhere() {
 		Log.d(TAG, "Connected to SiteWhere.");
 		try {
+            // This registers to receive any event that is sent to SiteWhere with a specific site.
+            // Filter and route configuration with groovy rules scripts will determine what events
+            // get sent to this client.
+            messageClient.registerForEvents("/bb105f8d-3150-41f5-b9d1-db04965668d3");
+
 			// This registers device with a specific site.
 			messageClient.sendDeviceRegistration(messageClient.getUniqueDeviceId(), "d2604433-e4eb-419b-97c7-88efe9b2cd41",
                     null, "bb105f8d-3150-41f5-b9d1-db04965668d3");
@@ -231,7 +239,34 @@ public class SiteWhereExample extends Activity implements IConnectivityWizardLis
         }
     }
 
-	private void handleRegistrationAck(Header header, RegistrationAck ack) {
+    /*
+	 * (non-Javadoc)
+	 *
+	 * @see SiteWhereMessageClientCallback
+	 */
+    @Override
+    public void onReceivedEventMessage(String topic, byte[] payload) {
+        Log.d(TAG, "Received event message " + new String(payload));
+        try {
+            JsonNode eventNode = new ObjectMapper().readTree(payload);
+            String eventType = eventNode.get("eventType").textValue();
+            if ("Measurements".equals(eventType)) {
+                DeviceMeasurements dm = new ObjectMapper().treeToValue(eventNode, DeviceMeasurements.class);
+                Map<String, Double> measurements = dm.getMeasurements();
+                StringBuilder sb = new StringBuilder();
+                for (String key : measurements.keySet()) {
+                    sb.append(key).append(": ");
+                    sb.append(measurements.get(key));
+                    sb.append(" ");
+                }
+                Log.d(TAG, "Received measurements " + sb.toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleRegistrationAck(Header header, RegistrationAck ack) {
 		switch (ack.getState()) {
 		case REGISTRATION_ERROR: {
 			Log.d(TAG,

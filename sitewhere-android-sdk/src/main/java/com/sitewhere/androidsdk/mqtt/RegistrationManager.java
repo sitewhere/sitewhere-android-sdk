@@ -120,11 +120,28 @@ public class RegistrationManager implements IMqttCallback {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.sitewhere.android.mqtt.IMqttCallback#disconnected()
-	 */
+    @Override
+    public void onEventMessageReceived(String topic, byte[] payload) {
+        Log.d(MqttService.TAG, "Notifying clients event message was received.");
+        List<IFromSiteWhere> unreachable = new ArrayList<IFromSiteWhere>();
+        for (IFromSiteWhere client : clients) {
+            try {
+                client.receivedEventMessage(topic, payload);
+            } catch (RemoteException e) {
+                Log.w(MqttService.TAG, "Unable to send message to client. Removing from list.", e);
+                unreachable.add(client);
+            }
+        }
+        for (IFromSiteWhere client : unreachable) {
+            clients.remove(client);
+        }
+    }
+
+    /*
+         * (non-Javadoc)
+         *
+         * @see com.sitewhere.android.mqtt.IMqttCallback#disconnected()
+         */
 	@Override
 	public void disconnected() {
 		List<IFromSiteWhere> unreachable = new ArrayList<IFromSiteWhere>();

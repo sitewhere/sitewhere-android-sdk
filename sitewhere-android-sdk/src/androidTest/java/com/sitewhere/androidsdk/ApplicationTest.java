@@ -42,7 +42,12 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
 
                                }
 
-                               @Override
+                                @Override
+                                public void onReceivedEventMessage(String topic, byte[] payload) {
+
+                                }
+
+                                @Override
                                public void onDisconnectedFromSiteWhere() {
                                     connected = false;
                                }

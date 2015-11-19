@@ -99,11 +99,17 @@ public class SiteWhereMessageClient {
                 mCallback.onReceivedSystemCommand(payload);
         }
 
+        @Override
+        public void receivedEventMessage(String topic, byte[] message) throws RemoteException {
+            if (mCallback != null)
+                mCallback.onReceivedEventMessage(topic, message);
+        }
+
         /*
-         * (non-Javadoc)
-         *
-         * @see com.sitewhere.android.messaging.IFromSiteWhere#disconnected()
-         */
+                 * (non-Javadoc)
+                 *
+                 * @see com.sitewhere.android.messaging.IFromSiteWhere#disconnected()
+                 */
         @Override
         public void disconnected() throws RemoteException {
             if (mCallback != null)
@@ -176,6 +182,13 @@ public class SiteWhereMessageClient {
         public void onReceivedSystemCommand(byte[] payload);
 
         /**
+         * Called when a event message is received.
+         *
+         * @param payload
+         */
+        public void onReceivedEventMessage(String topic, byte[] payload);
+
+        /**
          * Called when connection to SiteWhere is disconnected.
          */
         public void onDisconnectedFromSiteWhere();
@@ -210,6 +223,18 @@ public class SiteWhereMessageClient {
             mContext.unbindService(serviceConnection);
             serviceConnection = null;
             sClient = null;
+        }
+    }
+
+    public void registerForEvents(String topic) {
+        if ((serviceConnection != null) && (mBound)) {
+            if (mSitewhere != null) {
+                try {
+                    mSitewhere.registerForEvents(topic);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "Unable to register for events from response processor.", e);
+                }
+            }
         }
     }
 

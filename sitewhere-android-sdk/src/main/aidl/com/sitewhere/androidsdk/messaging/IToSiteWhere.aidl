@@ -13,4 +13,7 @@ interface IToSiteWhere {
 	
 	/** Send a binary payload to SiteWhere */
 	void send(in byte[] payload);
+
+	/** Subscrinbe to SiteWhere route topic */
+	void registerForEvents(in String topic);
 }

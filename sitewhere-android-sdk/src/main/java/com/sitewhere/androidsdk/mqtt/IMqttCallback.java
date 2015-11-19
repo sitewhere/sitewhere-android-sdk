@@ -44,6 +44,14 @@ public interface IMqttCallback {
 	public void onCustomCommandReceived(String topic, byte[] payload);
 
 	/**
+	 * Called when a event message is received.
+	 *
+	 * @param topic
+	 * @param payload
+	 */
+	public void onEventMessageReceived(String topic, byte[] payload);
+
+	/**
 	 * Called when a client is disconnected from SiteWhere.
 	 */
 	public void disconnected();
