@@ -462,36 +462,6 @@ public class SiteWhereMessageClient {
         }
     }
 
-
-    // TBD: Not sure what do here.  this is where the MQTT callbacks could come into play
-    /*
-    protected void onReceivedSystemCommand(byte[] payload) {
-        ByteArrayInputStream stream = new ByteArrayInputStream(payload);
-        try {
-            Header header = Device.Header.parseDelimitedFrom(stream);
-            switch (header.getCommand()) {
-                case ACK_REGISTRATION: {
-                    RegistrationAck ack = RegistrationAck.parseDelimitedFrom(stream);
-                    handleRegistrationAck(header, ack);
-                    break;
-                }
-                case ACK_DEVICE_STREAM: {
-                    DeviceStreamAck ack = DeviceStreamAck.parseDelimitedFrom(stream);
-                    handleDeviceStreamAck(header, ack);
-                    break;
-                }
-                case RECEIVE_DEVICE_STREAM_DATA: {
-                    DeviceStreamData chunk = DeviceStreamData.parseDelimitedFrom(stream);
-                    handleReceivedDeviceStreamData(header, chunk);
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Unable to process system command.", e);
-        }
-    }
-
-    */
     protected Class<? extends Service> getServiceClass() {
         return MqttService.class;
     }
