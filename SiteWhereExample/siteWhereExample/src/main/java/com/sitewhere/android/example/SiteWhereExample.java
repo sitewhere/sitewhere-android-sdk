@@ -268,19 +268,18 @@ public class SiteWhereExample extends AppCompatActivity implements IConnectivity
 
     private void handleRegistrationAck(Header header, RegistrationAck ack) {
 		switch (ack.getState()) {
-		case REGISTRATION_ERROR: {
-			Log.d(TAG,
-					"Error registering device. " + ack.getErrorType().name() + ": " + ack.getErrorMessage());
-			return;
-		}
-		case ALREADY_REGISTERED: {
-			Log.d(TAG, "Device was already registered.");
-			break;
-		}
-		case NEW_REGISTRATION: {
-			Log.d(TAG, "Device was registered successfully.");
-			break;
-		}
+			case REGISTRATION_ERROR: {
+				Log.d(TAG, "Error registering device. " + ack.getErrorType().name() + ": " + ack.getErrorMessage());
+				return;
+			}
+			case ALREADY_REGISTERED: {
+				Log.d(TAG, "Device was already registered.");
+				break;
+			}
+			case NEW_REGISTRATION: {
+				Log.d(TAG, "Device was registered successfully.");
+				break;
+			}
 		}
 		if (example != null) {
 			example.onSiteWhereConnected();
@@ -291,7 +290,6 @@ public class SiteWhereExample extends AppCompatActivity implements IConnectivity
 	}
 
     public void handleReceivedDeviceStreamData(Header header, Sitewhere.Model.DeviceStreamData data) {
-
     }
 
     /*
