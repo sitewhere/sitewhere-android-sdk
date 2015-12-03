@@ -3,8 +3,9 @@
 # SiteWhere Android SDK
 This software development kit allows Android devices to interact with SiteWhere.
 By default, the MQTT protocol is used to create a persistent connection between the
-application and SiteWhere. Devices can register with SiteWhere, publish events
-using the provided API and receive commands from SiteWhere.
+application and a SiteWhere instance. Devices can register with the system, publish events
+using the provided API and receive commands which can be used to execute code on the
+device.
 
 ## Developer Setup
 * Install [Java SE SDK 1.7](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html).
