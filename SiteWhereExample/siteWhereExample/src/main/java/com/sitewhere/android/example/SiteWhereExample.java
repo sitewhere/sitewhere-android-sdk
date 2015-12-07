@@ -179,7 +179,8 @@ public class SiteWhereExample extends AppCompatActivity implements IConnectivity
 	@Override
 	public void onConnectedToSiteWhere() {
 		Log.d(TAG, "Connected to SiteWhere.");
-		try {
+
+        try {
             // This registers to receive any event that is sent to SiteWhere with a specific site.
             // Filter and route configuration with groovy rules scripts will determine what events
             // get sent to this client.
@@ -201,7 +202,14 @@ public class SiteWhereExample extends AppCompatActivity implements IConnectivity
 	@Override
 	public void onDisconnectedFromSiteWhere() {
 		Log.d(TAG, "Disconnected from SiteWhere.");
-		if (example != null) {
+
+        try {
+            messageClient.sendDeviceAlert(messageClient.getUniqueDeviceId(), "sitewhere.disconnected", "Disconnected to SiteWhere.", null);
+        } catch (SiteWhereMessagingException e) {
+            Log.e(TAG, "Unable to send device alert to SiteWhere.", e);
+        }
+
+        if (example != null) {
 			example.onSiteWhereDisconnected();
 		}
 	}
@@ -281,6 +289,14 @@ public class SiteWhereExample extends AppCompatActivity implements IConnectivity
 				break;
 			}
 		}
+
+        try {
+            // send connected alert to sitewhere
+            messageClient.sendDeviceAlert(messageClient.getUniqueDeviceId(), "sitewhere.connected", "Connected to SiteWhere.", null);
+        } catch (SiteWhereMessagingException e) {
+            Log.e(TAG, "Unable to send device alert to SiteWhere.", e);
+        }
+
 		if (example != null) {
 			example.onSiteWhereConnected();
 		}

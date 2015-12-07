@@ -40,6 +40,7 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.sitewhere.androidsdk.SiteWhereMessageClient;
+import com.sitewhere.androidsdk.messaging.SiteWhereMessagingException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -132,12 +133,7 @@ public class ExampleFragment extends MapFragment implements LocationListener, Se
 		} else {
 			hookViews();
 			getMap().setMyLocationEnabled(true);
-			locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
-			sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-			rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-			sensorManager.registerListener(this, rotationVector, SensorManager.SENSOR_DELAY_NORMAL);
 		}
 	}
 
@@ -146,12 +142,62 @@ public class ExampleFragment extends MapFragment implements LocationListener, Se
 	 */
 	public void onSiteWhereConnected() {
 		Log.d(TAG, "Example fragment now sending data to SiteWhere.");
-		if (scheduler != null) {
-			scheduler.shutdownNow();
-		}
-		scheduler = Executors.newSingleThreadScheduledExecutor();
-		scheduler.scheduleAtFixedRate(new SiteWhereDataReporter(), SEND_INTERVAL_IN_SECONDS,
-				SEND_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // starting location updates
+                boolean locationStarted = false;
+                locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, ExampleFragment.this);
+                    locationStarted = true;
+                } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, ExampleFragment.this);
+                    locationStarted = true;
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "Unable to start location updates. No GPS or Network provider", Toast.LENGTH_LONG);
+                    locationStarted = false;
+                }
+
+                // starting accelerometer updates
+                boolean accelerometerStarted = false;
+                sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+                if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
+                    rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+                    sensorManager.registerListener(ExampleFragment.this, rotationVector, SensorManager.SENSOR_DELAY_NORMAL);
+                    accelerometerStarted = true;
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "Unable to start accelerometer updates. No accelerometer provided", Toast.LENGTH_LONG);
+                    accelerometerStarted = false;
+                }
+
+
+                // sending alerts to sitewhere
+                SiteWhereMessageClient messageClient = SiteWhereMessageClient.getInstance();
+                try {
+                    if (locationStarted)
+                        messageClient.sendDeviceAlert(messageClient.getUniqueDeviceId(), "location.started", "Started to read location data.", null);
+                } catch (SiteWhereMessagingException ex) {
+                    Log.e(TAG, "Unable to send location.started alert to SiteWhere.");
+                }
+                try {
+                    if (accelerometerStarted)
+                        messageClient.sendDeviceAlert(messageClient.getUniqueDeviceId(), "accelerometer.started", "Started to read accelerometer data.",null);
+                } catch (SiteWhereMessagingException e) {
+                    Log.e(TAG, "Unable to send accelerometer.started alert to SiteWhere.");
+                }
+
+
+                if (scheduler != null) {
+                    scheduler.shutdownNow();
+                }
+                scheduler = Executors.newSingleThreadScheduledExecutor();
+                scheduler.scheduleAtFixedRate(new SiteWhereDataReporter(), SEND_INTERVAL_IN_SECONDS,
+                        SEND_INTERVAL_IN_SECONDS, TimeUnit.SECONDS);
+            }
+        });
+
 	}
 
 	/**

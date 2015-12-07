@@ -72,7 +72,6 @@ public class SiteWhereMessageClient {
         public void connected() throws RemoteException {
             if (mCallback != null)
                 mCallback.onConnectedToSiteWhere();
-            sClient = SiteWhereMessageClient.this;
         }
 
         /*
@@ -196,6 +195,7 @@ public class SiteWhereMessageClient {
 
     public SiteWhereMessageClient(Context context) {
         mContext = context;
+        sClient = SiteWhereMessageClient.this;
     }
 
     public static SiteWhereMessageClient getInstance() {
