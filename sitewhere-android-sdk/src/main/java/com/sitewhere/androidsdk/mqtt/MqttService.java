@@ -87,7 +87,8 @@ public class MqttService extends Service {
 		connectionState = MqttConnectionState.Disconnected;
 
 		// Start up management entities.
-		mqttManager = new DefaultMqttInteractionManager();
+		// TODO Bubble up tenantId
+		mqttManager = new DefaultMqttInteractionManager("default");
 		registrationManager = new RegistrationManager();
 		mqttManager.setCallback(registrationManager);
 

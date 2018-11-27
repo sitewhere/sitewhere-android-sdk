@@ -29,5 +29,5 @@ Step 4. Select "Open Module Settings" and add module "sitewhere-android-sdk" in 
 The sample app can be found in the SiteWhereExample folder.  The app demostrates how an Android device can be an IoT gateway and/or client device for SiteWhere.  As an IoT gateway you can register an Android device with SiteWhere and send location and measurement events.  As an IoT client you can register to have events pushed in real-time to an Android device.  Configuring what events get pushed to a specific device is done using server side filters and groovy scripts.  The sample app uses the device's current location and accelerometer.
 
 # Discussion
-Join the discussion - https://groups.google.com/forum/#!forum/sitewhere
+[Join the discussion](https://discord.gg/sq7sH7B)
 

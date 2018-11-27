@@ -114,7 +114,7 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 			editor.putString(IMqttServicePreferences.PREF_SITEWHERE_DEVICE_HARDWARE_ID,
 					updated.getDeviceHardwareId());
 		}
-		editor.commit();
+		editor.apply();
 		return MqttServicePreferences.loadFrom(prefs);
 	}
 
