@@ -35,8 +35,10 @@ dependencies {
     implementation ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
     implementation ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
     implementation ("com.sitewhere:sitewhere-client:${rootProject.ext['sitewhere-client.version']}")
-    implementation ("com.fasterxml.jackson.core:jackson-databind:${rootProject.ext['jackson-databind.version']}")
-    implementation ("com.fasterxml.jackson.core:jackson-core:${rootProject.ext['jackson-databind.version']}")
+    implementation ("stax:stax-api:1.0.1")
+    
+//    implementation ("com.fasterxml.jackson.core:jackson-databind:${rootProject.ext['jackson-databind.version']}")
+//    implementation ("com.fasterxml.jackson.core:jackson-core:${rootProject.ext['jackson-databind.version']}")
 //    implementation ("com.android.support:support-annotations:28.0.0")
 //    implementation group: 'log4j', name: 'log4j', version: '1.2.17', transitive: false
 
