@@ -24,4 +24,9 @@ public interface IConnectivityPreferences {
 
 	/** Preference for base URI used to access SiteWhere APIs */
 	public static final String PREF_SITEWHERE_API_URI = "sw_api_uri";
+	/** Preference for username used to access SiteWhere APIs */
+    String PREF_SITEWHERE_API_USERNAME = "sw_api_username";
+
+	/** Preference for password used to access SiteWhere APIs */
+	String PREF_SITEWHERE_API_PASSWORD = "sw_api_password";
 }

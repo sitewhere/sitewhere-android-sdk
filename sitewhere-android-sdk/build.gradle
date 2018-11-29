@@ -4,10 +4,16 @@ android {
     compileSdkVersion 28
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 28
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
+        javaCompileOptions{
+            annotationProcessorOptions{
+                includeCompileClasspath = true
+            }
+        }
     }
     buildTypes {
         release {
@@ -25,21 +31,18 @@ android {
 }
 
 dependencies {
-    implementation group: 'com.sitewhere', name: 'sitewhere-core-api', version: '1.8.0', transitive: false
-    implementation group: 'com.sitewhere', name: 'sitewhere-client', version: '1.8.0', transitive: false
-    implementation group: 'log4j', name: 'log4j', version: '1.2.17', transitive: false
+    implementation ('com.android.support:appcompat-v7:28.0.0')
+    implementation ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
+    implementation ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
+    implementation ("com.sitewhere:sitewhere-client:${rootProject.ext['sitewhere-client.version']}")
+    implementation ("com.fasterxml.jackson.core:jackson-databind:${rootProject.ext['jackson-databind.version']}")
+    implementation ("com.fasterxml.jackson.core:jackson-core:${rootProject.ext['jackson-databind.version']}")
+//    implementation ("com.android.support:support-annotations:28.0.0")
+//    implementation group: 'log4j', name: 'log4j', version: '1.2.17', transitive: false
 
-    implementation 'org.fusesource.mqtt-client:mqtt-client:1.13'
+//    implementation group: 'com.sitewhere', name: 'sitewhere-core-api', version: '1.11.0', transitive: false
 
-    implementation files('libs/spring-android-rest-template-1.0.1.RELEASE.jar')
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.9.5'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.5'
-    implementation 'org.springframework.android:spring-android-core:1.0.1.RELEASE'
-
-    implementation group: 'com.android.support', name: 'support-annotations', version: '28.0.0'
-
-    implementation group: 'com.sitewhere', name: 'sitewhere-device-protobuf', version:'2.0.0-SNAPSHOT'
+//    implementation 'org.springframework.android:spring-android-core:1.0.1.RELEASE'
 }
 
 

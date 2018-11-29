@@ -1,3 +1,0 @@
-include ':siteWhereExample'
-include ':sitewhere-android-sdk'
-project(':sitewhere-android-sdk').projectDir = new File('../sitewhere-android-sdk')
