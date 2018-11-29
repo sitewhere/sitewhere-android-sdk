@@ -46,11 +46,23 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
     /** Tag for logging */
     private static final String TAG = "SiteWhereExample";
 
+    /** Default Area Token */
+    public static final String DEFAULT_AREA_TOKEN = "southeast";
+
+    /** Default Customer Token */
+    public static final String DEFAULT_CUSTOMER_TOKEN = "acme";
+
+    /** Default Device Type Token */
+    public static final String DEFAULT_DEVICE_TYPE_TOKEN = "galaxytab3";
+
     /** Wizard shown to establish preferences */
     private ConnectivityWizardFragment wizard;
 
     /** Fragment with example application */
     private ExampleFragment example;
+
+    /** SiteWhere tenant */
+    private String tenant;
 
     /** Message client for sending events to SiteWhere */
     private SiteWhereMessageClient messageClient;
@@ -65,10 +77,11 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         // Verify that SiteWhere API location has been specified.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String apiUrl = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_URI, null);
+        this.tenant = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_TENANT, null);
 
         // Push current device id into MQTT settings, then get current values.
         MqttServicePreferences updated = new MqttServicePreferences();
-        updated.setDeviceHardwareId(messageClient.getUniqueDeviceId());
+        updated.setDeviceToken(messageClient.getUniqueDeviceId());
         IMqttServicePreferences mqtt = MqttServicePreferences.update(updated, this);
 
         if ((apiUrl == null) || (mqtt.getBrokerHostname() == null)) {
@@ -152,19 +165,28 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
             // This registers to receive any event that is sent to SiteWhere with a specific site.
             // Filter and route configuration with groovy rules scripts will determine what events
             // get sent to this client.
-            messageClient.registerForEvents("/bb105f8d-3150-41f5-b9d1-db04965668d3");
+            String topic = buildSiteWhereTopic();
+            messageClient.registerForEvents(topic);
 
             String deviceToken = messageClient.getUniqueDeviceId();
             String originator = null;
-            String areaToken = "southeast";
-            String customerToken = "acme";
-            String deviceTypeToken = "galaxytab3";
+            String areaToken = DEFAULT_AREA_TOKEN;
+            String customerToken = DEFAULT_CUSTOMER_TOKEN;
+            String deviceTypeToken = DEFAULT_DEVICE_TYPE_TOKEN;
 
             // This registers device with a specific site.
             messageClient.sendDeviceRegistration(deviceToken, originator, areaToken, customerToken, deviceTypeToken);
         } catch (SiteWhereMessagingException e) {
             Log.e(TAG, "Unable to send device registration to SiteWhere.", e);
         }
+    }
+
+    private String buildSiteWhereTopic() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("SiteWhere/");
+        builder.append(tenant);
+        builder.append("input/protobuf");
+        return builder.toString();
     }
 
     /*
@@ -304,21 +326,6 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
                     Log.i(TAG, "Sent reponse to 'changeBackground' command.");
                     break;
                 }
-//                case PING: {
-//                    messageClient.sendAck(messageClient.getUniqueDeviceId(), header.getOriginator(), "Acknowledged.");
-//                    Log.i(TAG, "Sent reponse to 'ping' command.");
-//                    break;
-//                }
-//                case TESTEVENTS: {
-//                    Map<String, Double> measurements = new HashMap<>();
-//                    measurements.put("engine.temp", 170.0);
-//                    messageClient.sendDeviceMeasurements(messageClient.getUniqueDeviceId(), /*header.getOriginator(),*/ measurements, null);
-//                    messageClient.sendDeviceLocation(messageClient.getUniqueDeviceId(), /*header.getOriginator(),*/ 33.7550, -84.3900, 0.0, null);
-//                    messageClient.sendDeviceAlert(messageClient.getUniqueDeviceId(), /*header.getOriginator(),*/ "engine.overheat",
-//                            "Engine is overheating!", null);
-//                    Log.i(TAG, "Sent reponse to 'testEvents' command.");
-//                    break;
-//                }
             }
         } catch (IOException e) {
             Log.e(TAG, "IO exception processing custom command.", e);

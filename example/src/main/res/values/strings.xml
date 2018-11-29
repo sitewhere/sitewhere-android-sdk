@@ -28,7 +28,7 @@
 
     <!-- SiteWhere MQTT wizard -->
     <string name="sitewhere_mqtt_title">MQTT Broker Information</string>
-    <string name="sitewhere_mqtt_label">Enter hostname for MQTT broker including port number. (e.g. my.sitewhere.server:1883).</string>
+    <string name="sitewhere_mqtt_label">Enter MQTT broker port number. (e.g. 1883).</string>
     <string name="sitewhere_mqtt_submit">Verify</string>
     <string name="sitewhere_mqtt_verify_check_cd">SiteWhere API URL Verified</string>
 
@@ -40,6 +40,10 @@
     <string name="pref_sw_api_uri_dialog_title">Enter SiteWhere Host Information</string>
     <string name="pref_sw_api_uri_title">SiteWhere Host</string>
     <string name="pref_sw_api_uri_summary">Hostname for accessing SiteWhere APIs (hostname:port)</string>
+
+    <string name="pref_sw_api_tenant_dialog_title">Enter SiteWhere Tenant Name</string>
+    <string name="pref_sw_api_tenant_title">SiteWhere Tenant</string>
+    <string name="pref_sw_api_tenant_summary">Teant for accessing SiteWhere APIs</string>
 
     <!-- SiteWhere MQTT connectivity preferences -->
     <string name="pref_sw_mqtt">SiteWhere MQTT Connectivity</string>

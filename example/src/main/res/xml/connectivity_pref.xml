@@ -2,6 +2,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="@string/pref_sw_api" >
         <EditTextPreference
+            android:dialogTitle="@string/pref_sw_api_tenant_title"
+            android:key="sw_tenant"
+            android:summary="@string/pref_sw_api_tenant_summary"
+            android:title="@string/pref_sw_api_tenant_title" />
+        <EditTextPreference
             android:dialogTitle="@string/pref_sw_api_uri_dialog_title"
             android:key="sw_api_uri"
             android:summary="@string/pref_sw_api_uri_summary"

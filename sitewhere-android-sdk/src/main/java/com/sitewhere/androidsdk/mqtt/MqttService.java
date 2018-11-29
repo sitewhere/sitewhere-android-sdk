@@ -193,7 +193,7 @@ public class MqttService extends Service {
 					connection = mqtt.blockingConnection();
 					connection.connect();
 					Log.d(TAG, "Connected to MQTT.");
-					mqttManager.connect(configuration.getDeviceHardwareId(), connection);
+					mqttManager.connect(configuration.getDeviceToken(), connection);
 					registrationManager.connected();
 					connectionState = MqttConnectionState.Connected;
 				} catch (URISyntaxException e) {
@@ -214,7 +214,7 @@ public class MqttService extends Service {
 		if (isMqttConnected()) {
 			try {
 				Log.d(TAG, "Disconnecting from MQTT...");
-				mqttManager.disconnect(configuration.getDeviceHardwareId(), connection);
+				mqttManager.disconnect(configuration.getDeviceToken(), connection);
 				connection.disconnect();
 				connection = null;
 				connectionState = MqttConnectionState.Disconnected;
@@ -309,15 +309,15 @@ public class MqttService extends Service {
 			this.configuration = inConfig;
 			Log.d(TAG,
 					"Starting MQTT service for: host->" + configuration.getBrokerHostname()
-							+ " port->" + configuration.getBrokerPort() + " hardwareId->"
-							+ configuration.getDeviceHardwareId());
+							+ " port->" + configuration.getBrokerPort() + " token->"
+							+ configuration.getDeviceToken());
 		} else if (!inConfig.equals(this.configuration)) {
 			this.configuration = inConfig;
 			Log.d(TAG,
 					"Settings changed. Will reconnect with settings: host->"
 							+ configuration.getBrokerHostname() + " port->"
-							+ configuration.getBrokerPort() + " hardwareId->"
-							+ configuration.getDeviceHardwareId());
+							+ configuration.getBrokerPort() + " token->"
+							+ configuration.getDeviceToken());
 		} else {
 			needsReconnect = false;
 		}

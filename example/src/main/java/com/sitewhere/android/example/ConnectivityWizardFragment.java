@@ -64,6 +64,9 @@ public class ConnectivityWizardFragment extends Fragment {
 	/** Color for success messages */
 	private static final String SUCCESS_COLOR = "#005500";
 
+    /** SiteWhere default tenant */
+    private static final String DEFAULT_SITEWHERE_TENANT = "default";
+
     /** SiteWhere default Username */
     private static final String DEFAULT_SITEWHERE_USERNAME = "admin";
 
@@ -91,6 +94,9 @@ public class ConnectivityWizardFragment extends Fragment {
                 DEFAULT_SITEWHERE_PORT,
                 DEFAULT_SITEWHERE_PATH);
     }
+
+    /** Text field that holds tenant */
+    private EditText tenant;
 
     /** Text field that holds Username */
 	private EditText username;
@@ -134,8 +140,8 @@ public class ConnectivityWizardFragment extends Fragment {
 	/** MQTT label */
 	private TextView mqttLabel;
 
-	/** Text field that holds MQTT URI */
-	private EditText mqttUri;
+	/** Text field that MQTT Port Number */
+	private EditText mqttPortNumber;
 
 	/** Button for verifying MQTT */
 	private Button mqttVerifyButton;
@@ -209,7 +215,8 @@ public class ConnectivityWizardFragment extends Fragment {
 	 */
 	protected void setupApiFields() {
 		// Get reference to API hostname text field.
-//		apiUri = (EditText) getActivity().findViewById(R.id.sitewhere_api);
+
+        tenant = (EditText) getActivity().findViewById(R.id.tenant);
 		username = (EditText) getActivity().findViewById(R.id.username);
 		password = (EditText) getActivity().findViewById(R.id.password);
 		hostname = (EditText) getActivity().findViewById(R.id.hostname);
@@ -230,8 +237,10 @@ public class ConnectivityWizardFragment extends Fragment {
 			} catch (URISyntaxException e) {
 			}
 		}
+		String tenantName = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_PASSWORD, DEFAULT_SITEWHERE_TENANT);
         String prefUsername = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_USERNAME, DEFAULT_SITEWHERE_USERNAME);
         String prefPassword = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_PASSWORD, DEFAULT_SITEWHERE_PASSWORD);
+
 
 		// Get reference to 'verify' button.
 		apiVerifyButton = (Button) getActivity().findViewById(R.id.sitewhere_api_submit);
@@ -275,12 +284,13 @@ public class ConnectivityWizardFragment extends Fragment {
 		mqttHostGroup = (LinearLayout) getActivity().findViewById(R.id.sitewhere_mqtt_host_grp);
 
 		// Get reference to MQTT host text field.
-		mqttUri = (EditText) getActivity().findViewById(R.id.sitewhere_mqtt);
+		mqttPortNumber = (EditText) getActivity().findViewById(R.id.sitewhere_mqtt_port);
 
 		// Load URI from preferences if available.
 		IMqttServicePreferences prefs = MqttServicePreferences.read(getActivity());
-		String prefMqttUri = prefs.getBrokerHostname() + ":" + prefs.getBrokerPort();
-		mqttUri.setText(prefMqttUri);
+//		String prefMqttUri = prefs.getBrokerHostname() + ":" + prefs.getBrokerPort();
+
+		mqttPortNumber.setText(String.valueOf(prefs.getBrokerPort()));
 
 		// Get reference to 'verify' button.
 		mqttVerifyButton = (Button) getActivity().findViewById(R.id.sitewhere_mqtt_submit);
@@ -348,6 +358,10 @@ public class ConnectivityWizardFragment extends Fragment {
 
 	private String buildSiteWhereAPIUri() {
 	    return buildURI(getAPISchema(), getAPIHostname(), getAPIPort(), DEFAULT_SITEWHERE_PATH);
+    }
+
+    private static String buildURI(String schema, String hostname, int port) {
+	    return buildURI(schema, hostname, port, null);
     }
 
     private static String buildURI(String schema, String hostname, int port, String path) {
@@ -428,6 +442,7 @@ public class ConnectivityWizardFragment extends Fragment {
 		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_URI, api);
         editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_USERNAME, username.getText().toString());
         editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_PASSWORD, password.getText().toString());
+		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_TENANT, tenant.getText().toString());
 
 		editor.commit();
 
@@ -443,12 +458,7 @@ public class ConnectivityWizardFragment extends Fragment {
 		mqttLabel.setVisibility(View.VISIBLE);
 		mqttHostGroup.setVisibility(View.VISIBLE);
 
-		// TOOD
-		String apiUriStr = buildSiteWhereAPIUri();
-		String[] apiParts = apiUriStr.split("[:]+");
-		if (apiParts.length > 0) {
-			mqttUri.setText(apiParts[0] + ":1883");
-		}
+		mqttPortNumber.setText("1883");
 	}
 
 	/**
@@ -458,7 +468,8 @@ public class ConnectivityWizardFragment extends Fragment {
 	 */
 	protected void onMqttVerifyButtonClicked(View v) {
 		if (!NetworkUtils.isOnline(getActivity())) {
-			InterfaceUtils.showAlert(getActivity(), R.string.sitewhere_no_network_message,
+			InterfaceUtils.showAlert(getActivity(),
+					R.string.sitewhere_no_network_message,
 					R.string.sitewhere_no_network_title);
 			return;
 		}
@@ -466,15 +477,17 @@ public class ConnectivityWizardFragment extends Fragment {
 		// Disable button until processing is complete.
 		mqttVerifyButton.setEnabled(false);
 
-		String uri = mqttUri.getText().toString();
-		if (uri.length() == 0) {
-			mqttUri.setError("Enter a value for the remote MQTT broker address.");
+		Integer mqttPort = Integer.parseInt(mqttPortNumber.getText().toString());
+
+		if (mqttPort.intValue() == 0) {
+			mqttPortNumber.setError("Enter a value for the remote MQTT broker address.");
 			mqttVerifyGroup.setVisibility(View.GONE);
 			return;
 		}
 
 		// Calculate API URL and create client for testing.
-		String api = "http://" + uri;
+		String api = buildURI("mqtt", getAPIHostname(), mqttPort);
+
 		mqttVerifyMessage.setTextColor(Color.parseColor(SUCCESS_COLOR));
 		mqttVerifyMessage.setText("Verifying MQTT broker available for URI: '" + api + "' ...");
 
@@ -482,22 +495,7 @@ public class ConnectivityWizardFragment extends Fragment {
 		mqttVerifyGroup.setVisibility(View.VISIBLE);
 		mqttVerifyProgress.setVisibility(View.VISIBLE);
 
-		String mqttUriStr = mqttUri.getText().toString();
-		String[] mqttParts = mqttUriStr.split("[:]+");
-		String broker = null;
-		int port = 1883;
-		if (mqttParts.length > 0) {
-			broker = mqttParts[0];
-		}
-		if (mqttParts.length > 1) {
-			try {
-				port = Integer.parseInt(mqttParts[1]);
-			} catch (NumberFormatException e) {
-				mqttVerifyMessage.setTextColor(Color.parseColor(ERROR_COLOR));
-				mqttVerifyMessage.setText("Invalid MQTT broker port value.");
-				return;
-			}
-		}
+		String broker = getAPIHostname();
 
 		if (broker == null) {
 			mqttVerifyMessage.setTextColor(Color.parseColor(ERROR_COLOR));
@@ -505,7 +503,7 @@ public class ConnectivityWizardFragment extends Fragment {
 			return;
 		}
 
-		executor.submit(new MqttVerifier(broker, port));
+		executor.submit(new MqttVerifier(broker, mqttPort));
 	}
 
 	/**
@@ -532,23 +530,17 @@ public class ConnectivityWizardFragment extends Fragment {
 		mqttVerifyMessage.setText("MQTT broker connectivity verified.");
 
 		// Update preferences with new values.
-		String uri = mqttUri.getText().toString();
-		String[] parts = uri.split("[:]+");
-		if (parts.length > 0) {
-			MqttServicePreferences updated = new MqttServicePreferences();
-			updated.setBrokerHostname(parts[0]);
-			if (parts.length > 1) {
-				try {
-					updated.setBrokerPort(Integer.parseInt(parts[1]));
-				} catch (NumberFormatException e) {
-					// Ignore invalid integers.
-				}
-			}
-			MqttServicePreferences.update(updated, getActivity());
-		}
-
-		// Make "finish" button visible.
-		wizardComplete.setVisibility(View.VISIBLE);
+        try {
+            Integer mqttPort = Integer.parseInt(mqttPortNumber.getText().toString());
+            MqttServicePreferences updated = new MqttServicePreferences();
+            updated.setBrokerHostname(getAPIHostname());
+            updated.setBrokerPort(mqttPort);
+            MqttServicePreferences.update(updated, getActivity());
+            // Make "finish" button visible.
+            wizardComplete.setVisibility(View.VISIBLE);
+        }catch (NumberFormatException nfe) {
+            Log.e(TAG, nfe.getMessage());
+        }
 	}
 
 	/**
