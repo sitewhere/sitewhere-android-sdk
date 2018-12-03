@@ -55,18 +55,6 @@ dependencies {
         exclude module: 'support-v4'
     }
     implementation project(':sitewhere-android-sdk')
-    implementation ("com.sitewhere:sitewhere-java-model:${rootProject.ext['sitewhere-java-api.version']}")
-    implementation ("com.sitewhere:sitewhere-java-client:${rootProject.ext['sitewhere-java-api.version']}"){
-        exclude group: 'org.springframework', module: 'spring-web'
-    }
-    implementation 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
-    // Added to solve https://stackoverflow.com/questions/51872333/java-lang-noclassdeffounderror-failed-resolution-of-lorg-apache-commons-loggin
-    implementation files('libs/commons-logging-1.1.1.jar')
-
-    implementation ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
-    implementation ("com.fasterxml.jackson.core:jackson-databind:${rootProject.ext['jackson-databind.version']}")
-    implementation ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
-
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

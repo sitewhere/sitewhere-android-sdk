@@ -31,10 +31,20 @@ android {
 }
 
 dependencies {
-    implementation ('com.android.support:appcompat-v7:28.0.0')
-    implementation ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
-    implementation ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
-    implementation ("stax:stax-api:1.0.1")
+    api ('com.android.support:appcompat-v7:28.0.0')
+    api ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
+    api ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
+    api ("com.sitewhere:sitewhere-java-model:${rootProject.ext['sitewhere-java-api.version']}")
+    api ("com.sitewhere:sitewhere-java-client:${rootProject.ext['sitewhere-java-api.version']}"){
+        exclude group: 'org.springframework', module: 'spring-web'
+    }
+    api 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
+    api ("stax:stax-api:1.0.1")
+    // Added to solve https://stackoverflow.com/questions/51872333/java-lang-noclassdeffounderror-failed-resolution-of-lorg-apache-commons-loggin
+    api files('libs/commons-logging-1.1.1.jar')
+    api ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
+    api ("com.fasterxml.jackson.core:jackson-databind:${rootProject.ext['jackson-databind.version']}")
+    api ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
 }
 
 
