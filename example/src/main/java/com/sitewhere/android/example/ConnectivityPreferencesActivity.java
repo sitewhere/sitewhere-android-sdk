@@ -15,22 +15,22 @@
  */
 package com.sitewhere.android.example;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 /**
  * Activity that displays connectivity preferences.
  * 
  * @author Derek
  */
-public class ConnectivityPreferencesActivity extends Activity {
+public class ConnectivityPreferencesActivity extends AppCompatActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		// Display the fragment as the main content.
-		getFragmentManager().beginTransaction()
-				.replace(android.R.id.content, new ConnectivityPreferencesFragment()).commit();
+		getSupportFragmentManager()
+				.beginTransaction()
+				.replace(R.id.container, new ConnectivityPreferencesFragment())
+				.commit();
 	}
 }

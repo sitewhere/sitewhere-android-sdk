@@ -16,25 +16,18 @@
 package com.sitewhere.android.example;
 
 import android.os.Bundle;
-import android.preference.PreferenceFragment;
+import android.support.v7.preference.PreferenceFragmentCompat;
 
 /**
  * Fragment used for displaying connectivity preferences.
  * 
  * @author Derek
  */
-public class ConnectivityPreferencesFragment extends PreferenceFragment {
+public class ConnectivityPreferencesFragment extends PreferenceFragmentCompat {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.preference.PreferenceFragment#onCreate(android.os.Bundle)
-	 */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		// Load the preferences from an XML resource
-		addPreferencesFromResource(R.xml.connectivity_pref);
-	}
+    @Override
+    public void onCreatePreferences(Bundle bundle, String s) {
+        // Load the Preferences from the XML file
+        addPreferencesFromResource(R.xml.connectivity_pref);
+    }
 }

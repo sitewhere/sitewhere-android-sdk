@@ -42,6 +42,12 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	/** Topic prefix for inbound command messages */
 	private static final String COMMAND_TOPIC_PREFIX = "SiteWhere/commands/";
 
+	/** SiteWhere Defult tenant */
+	private static final String DEFAULT_TENANT_ID = "default";
+
+	/** SiteWhere default MQTT Message Encoding */
+	private static final String DEFAULT_MESSAGE_ENCODING = "protobuf";
+
 	/** Topic for receiving commands */
 	private Topic commandTopic;
 
@@ -58,7 +64,10 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	private ExecutorService executor;
 
 	/** Tenant Id */
-	private String tenantId;
+	private String tenantId = DEFAULT_TENANT_ID;
+
+	/** Message encoding */
+	private String encoding = DEFAULT_MESSAGE_ENCODING;
 
 	public DefaultMqttInteractionManager(String tenantId) {
 		super();

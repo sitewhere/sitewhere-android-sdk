@@ -42,11 +42,15 @@ import com.sitewhere.spi.SiteWhereException;
 
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
+import org.springframework.http.HttpHeaders;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Fragment that allows the user to choose the host/port of the SiteWhere instance to interact with.
@@ -349,11 +353,27 @@ public class ConnectivityWizardFragment extends Fragment {
 		apiVerifyGroup.setVisibility(View.VISIBLE);
 		apiVerifyProgress.setVisibility(View.VISIBLE);
 
-		String sitewhereUsernam = username.getText().toString();
+		String sitewhereUsername = username.getText().toString();
 		String sitewherePassword = password.getText().toString();
 
-		SiteWhereClient client = new SiteWhereClient(apiUri, sitewhereUsernam, sitewherePassword, 4000);
-		executor.submit(new HostVerifier(client));
+		Future<ISiteWhereClient> clienteFuture =
+                executor.submit(
+		            new SiteWhereClientConnector(getAPISchema(),
+                        getAPIHostname(),
+                        getAPIPort(),
+                        sitewhereUsername,
+                        sitewherePassword));
+
+		ISiteWhereClient client = null;
+
+		try {
+			client = clienteFuture.get();
+            executor.submit(new HostVerifier(client));
+		} catch (ExecutionException e) {
+			Log.e(TAG, e.getMessage());
+		} catch (InterruptedException e) {
+            Log.e(TAG, e.getMessage());
+		}
 	}
 
 	private String buildSiteWhereAPIUri() {
@@ -665,6 +685,45 @@ public class ConnectivityWizardFragment extends Fragment {
 						handleMqttError("Unable to connect to MQTT broker.", t);
 					}
 				});
+			}
+		}
+	}
+
+	/**
+	 * Creates a <code>ISiteWhereClient</code>.
+	 */
+	private class SiteWhereClientConnector implements Callable<ISiteWhereClient> {
+
+		private final String schema;
+
+        private final String hostname;
+
+		private final int port;
+
+		private final String username;
+
+		private final String password;
+
+        public SiteWhereClientConnector(String schema, String hostname, int port, String username, String password) {
+            this.schema = schema;
+            this.hostname = hostname;
+            this.port = port;
+            this.username = username;
+            this.password = password;
+        }
+
+        @Override
+		public ISiteWhereClient call() throws Exception {
+			ISiteWhereClient client = null;
+			try {
+                SiteWhereClient.newBuilder()
+						.withConnectionTo(this.schema, this.hostname, this.port)
+						.forUser(this.username, this.password)
+						.build().initialize();
+
+				return client;
+			} catch (SiteWhereException e) {
+				throw e;
 			}
 		}
 	}

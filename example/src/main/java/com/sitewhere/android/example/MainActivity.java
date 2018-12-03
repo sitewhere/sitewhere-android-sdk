@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -31,7 +32,7 @@ import com.sitewhere.communication.protobuf.proto.SiteWhere.Device.DeviceStreamA
 import com.sitewhere.communication.protobuf.proto.SiteWhere.Device.Header;
 import com.sitewhere.communication.protobuf.proto.SiteWhere.Device.RegistrationAck;
 import com.sitewhere.android.Android;
-import com.sitewhere.rest.model.device.event.DeviceMeasurements;
+import com.sitewhere.rest.model.device.event.DeviceMeasurement;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -91,8 +92,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         } else {
             initExampleApplication();
         }
-
-    }
+     }
 
     /**
      * Adds the connectivity wizard if preferences have not been set.
@@ -104,6 +104,13 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         fragmentTransaction.replace(R.id.container, wizard);
         fragmentTransaction.commit();
         //getActionBar().setTitle("SiteWhere Device Setup");
+    }
+
+    /**
+     * Show the settings screen
+     */
+    private void  initSettinsScreen(){
+
     }
 
     /**
@@ -258,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
 
     /*
      * (non-Javadoc)
-     *
+     * //TODO Check this code
      * @see SiteWhereMessageClientCallback
      */
     @Override
@@ -268,14 +275,9 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
             JsonNode eventNode = new ObjectMapper().readTree(payload);
             String eventType = eventNode.get("eventType").textValue();
             if ("Measurements".equals(eventType)) {
-                DeviceMeasurements dm = new ObjectMapper().treeToValue(eventNode, DeviceMeasurements.class);
-                Map<String, Double> measurements = dm.getMeasurements();
+                DeviceMeasurement dm = new ObjectMapper().treeToValue(eventNode, DeviceMeasurement.class);
                 StringBuilder sb = new StringBuilder();
-                for (String key : measurements.keySet()) {
-                    sb.append(key).append(": ");
-                    sb.append(measurements.get(key));
-                    sb.append(" ");
-                }
+                sb.append(dm.getName()).append(": ").append(dm.getValue());
                 Log.d(TAG, "Received measurements " + sb.toString());
             }
         } catch (IOException e) {

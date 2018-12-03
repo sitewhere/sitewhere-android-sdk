@@ -19,7 +19,7 @@ import com.sitewhere.androidsdk.messaging.IToSiteWhere;
 import com.sitewhere.androidsdk.messaging.SiteWhereMessagingException;
 import com.sitewhere.androidsdk.mqtt.MqttService;
 import com.sitewhere.communication.protobuf.proto.SiteWhere;
-import com.sitewhere.spi.device.event.IDeviceEventOriginator;
+//import com.sitewhere.spi.device.event.IDeviceEventOriginator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -470,9 +470,10 @@ public class SiteWhereMessageClient {
                 parametersWithOriginator[i] = parameters[i];
                 i++;
             }
-            IDeviceEventOriginator originator = (IDeviceEventOriginator) in.readObject();
-            typesWithOriginator[i] = IDeviceEventOriginator.class;
-            parametersWithOriginator[i] = originator;
+//TODO
+//            IDeviceEventOriginator originator = (IDeviceEventOriginator) in.readObject();
+//            typesWithOriginator[i] = IDeviceEventOriginator.class;
+//            parametersWithOriginator[i] = originator;
 
             Method method = null;
             try {

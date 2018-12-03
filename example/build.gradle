@@ -44,25 +44,30 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
     implementation ('com.android.support:appcompat-v7:28.0.0')
+    implementation ('com.android.support:preference-v7:28.0.0')
     implementation ('com.android.support.constraint:constraint-layout:1.1.3')
+    
     implementation ('com.google.android.gms:play-services-maps:9.4.0') {
         exclude group: 'com.android.support'
         exclude module: 'appcompat-v7'
         exclude module: 'support-v4'
     }
     implementation project(':sitewhere-android-sdk')
-    implementation ("com.sitewhere:sitewhere-client:${rootProject.ext['sitewhere-client.version']}") {
+    implementation ("com.sitewhere:sitewhere-java-model:${rootProject.ext['sitewhere-java-api.version']}")
+    implementation ("com.sitewhere:sitewhere-java-client:${rootProject.ext['sitewhere-java-api.version']}"){
         exclude group: 'org.springframework', module: 'spring-web'
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-databind'
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-core'
-        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotations'
     }
+    implementation 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
+    // Added to solve https://stackoverflow.com/questions/51872333/java-lang-noclassdeffounderror-failed-resolution-of-lorg-apache-commons-loggin
+    implementation files('libs/commons-logging-1.1.1.jar')
+
     implementation ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
     implementation ("com.fasterxml.jackson.core:jackson-databind:${rootProject.ext['jackson-databind.version']}")
     implementation ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
-//    implementation ("org.springframework.android:spring-android-rest-template:1.0.1.RELEASE")
-//    implementation ("org.springframework.android:spring-android-core:1.0.1.RELEASE")
+
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
