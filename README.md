@@ -2,6 +2,8 @@
 
 # SiteWhere Android SDK
 
+[![license](https://img.shields.io/badge/license-CPAL--1-blue.svg?style=flat)](https://raw.githubusercontent.com/sitewhere/sitewhere-android-sdk/master/LICENSE.txt)
+
 This software development kit allows Android devices to interact with SiteWhere.
 By default, the MQTT protocol is used to create a persistent connection between the
 application and a SiteWhere instance. Devices can register with the system, publish events
