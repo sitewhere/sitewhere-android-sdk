@@ -205,7 +205,9 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	 * @return
 	 */
 	protected String getOutboundTopic() {
-		return OUTBOUND_TOPIC;
+		StringBuilder builder = new StringBuilder();
+		builder.append(String.format(OUTBOUND_TOPIC, tenantId));
+		return builder.toString();
 	}
 
 	/**

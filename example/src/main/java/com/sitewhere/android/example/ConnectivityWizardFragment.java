@@ -25,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -71,7 +72,10 @@ public class ConnectivityWizardFragment extends Fragment {
     /** SiteWhere default tenant */
     private static final String DEFAULT_SITEWHERE_TENANT = "default";
 
-    /** SiteWhere default Username */
+    /** SiteWhere default tenant auth token*/
+	private static final String DEFAULT_SITEWHERE_TENANT_AUTH = "SiteWhere1234567890";
+
+	/** SiteWhere default Username */
     private static final String DEFAULT_SITEWHERE_USERNAME = "admin";
 
     /** SiteWhere default Password */
@@ -92,15 +96,27 @@ public class ConnectivityWizardFragment extends Fragment {
     /** SiteWhere default URI */
     private static final String DEFAULT_SITEWHERE_URI;
 
-    static {
+	static {
         DEFAULT_SITEWHERE_URI = buildURI(DEFAULT_SITEWHERE_SCHEMA,
                 DEFAULT_SITEWHERE_HOSTNAME,
                 DEFAULT_SITEWHERE_PORT,
                 DEFAULT_SITEWHERE_PATH);
     }
 
+    /** Swith that holds if use the default tenant */
+    private Switch useDefaultTenant;
+
     /** Text field that holds tenant */
     private EditText tenant;
+
+    /** Layout tenant name */
+    private LinearLayout tenantGroup;
+
+	/** Text field that holds tenant auth token */
+	private EditText tenantAuth;
+
+    /** Layout tenant name */
+    private LinearLayout tenantAuthGroup;
 
     /** Text field that holds Username */
 	private EditText username;
@@ -220,30 +236,54 @@ public class ConnectivityWizardFragment extends Fragment {
 	protected void setupApiFields() {
 		// Get reference to API hostname text field.
 
+		useDefaultTenant = (Switch) getActivity().findViewById(R.id.use_default_tenant);
+        useDefaultTenant.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                onUseDefaultTenantChanged(buttonView, isChecked);
+            }
+        });
         tenant = (EditText) getActivity().findViewById(R.id.tenant);
+        tenantAuth = (EditText) getActivity().findViewById(R.id.tenant_auth);
+        tenantGroup = (LinearLayout) getActivity().findViewById(R.id.tenant_gpr);
+        tenantAuthGroup = (LinearLayout) getActivity().findViewById(R.id.tenant_auth_gpr);
+
 		username = (EditText) getActivity().findViewById(R.id.username);
 		password = (EditText) getActivity().findViewById(R.id.password);
 		hostname = (EditText) getActivity().findViewById(R.id.hostname);
 		portNumber = (EditText) getActivity().findViewById(R.id.portNumber);
 		useHttps = (Switch) getActivity().findViewById(R.id.https);
 
-		// Load URI from preferences if available.
+
+        // Load URI from preferences if available.
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		String prefApiUri = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_URI, DEFAULT_SITEWHERE_URI);
+
+		String prefSchema = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_SCHEMA, DEFAULT_SITEWHERE_SCHEMA);
+		String prefHost = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_HOSTNAME, DEFAULT_SITEWHERE_HOSTNAME);
+		int prefPort = prefs.getInt(IConnectivityPreferences.PREF_SITEWHERE_API_PORT, DEFAULT_SITEWHERE_PORT);
+		String prefUsername = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_USERNAME, DEFAULT_SITEWHERE_USERNAME);
+		String prefPassword = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_PASSWORD, DEFAULT_SITEWHERE_PASSWORD);
+		String prefTenant = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_TENANT, DEFAULT_SITEWHERE_TENANT);
+		String prefTenantAuth = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_TENANT_AUTH, DEFAULT_SITEWHERE_TENANT_AUTH);
+
+		//String prefApiUri = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_URI, DEFAULT_SITEWHERE_URI);
+
+		String prefApiUri = buildURI(prefSchema, prefHost, prefPort, DEFAULT_SITEWHERE_PATH);
+
 		if (prefApiUri != null) {
 			try {
 				URI uri = new URI(prefApiUri);
 
                 useHttps.setChecked("https".equalsIgnoreCase(uri.getScheme()));
 				hostname.setText(uri.getHost());
-				String port = String.valueOf(uri.getPort());
-                portNumber.setText(port);
+                portNumber.setText(String.valueOf(uri.getPort()));
+                username.setText(prefUsername);
+                password.setText(prefPassword);
+				tenant.setText(prefTenant);
+				tenantAuth.setText(prefTenantAuth);
 			} catch (URISyntaxException e) {
 			}
 		}
-		String tenantName = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_PASSWORD, DEFAULT_SITEWHERE_TENANT);
-        String prefUsername = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_USERNAME, DEFAULT_SITEWHERE_USERNAME);
-        String prefPassword = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_PASSWORD, DEFAULT_SITEWHERE_PASSWORD);
 
 
 		// Get reference to 'verify' button.
@@ -271,7 +311,22 @@ public class ConnectivityWizardFragment extends Fragment {
 				R.id.sitewhere_api_verify_progress);
 	}
 
-	/**
+    /**
+     * Called when Use Default Tenant changes.
+     * @param buttonView
+     * @param isChecked
+     */
+    private void onUseDefaultTenantChanged(CompoundButton buttonView, boolean isChecked) {
+        if(isChecked) {
+            this.tenantGroup.setVisibility(View.GONE);
+            this.tenantAuthGroup.setVisibility(View.GONE);
+        } else {
+            this.tenantGroup.setVisibility(View.VISIBLE);
+            this.tenantAuthGroup.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
 	 * Set up field for verifying API access.
 	 */
 	protected void setupMqttFields() {

@@ -35,6 +35,7 @@
     <!-- Connectivity wizard -->
     <string name="sitewhere_wizard_complete">Continue</string>
 
+
     <!-- SiteWhere API connectivity preferences -->
     <string name="pref_sw_api">SiteWhere API Connectivity</string>
     <string name="pref_sw_api_uri_dialog_title">Enter SiteWhere Host Information</string>

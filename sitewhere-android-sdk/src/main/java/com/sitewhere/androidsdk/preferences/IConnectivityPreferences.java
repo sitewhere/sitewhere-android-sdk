@@ -33,4 +33,19 @@ public interface IConnectivityPreferences {
 
 	/** Preference for password used to access SiteWhere APIs */
 	String PREF_SITEWHERE_API_PASSWORD = "sw_api_password";
+
+    /** Preference for protocol used to access SiteWhere APIs */
+    String PREF_SITEWHERE_API_SCHEMA = "sw_api_protocol";
+
+	/** Preference for hostname used to access SiteWhere APIs */
+    String PREF_SITEWHERE_API_HOSTNAME = "sw_api_hostname";
+
+    /** Preference for port used to access SiteWhere APIs */
+    String PREF_SITEWHERE_API_PORT = "sw_api_port";
+
+    /** Preference tenant to access SiteWhere APIs */
+    String PREF_SITEWHERE_TENANT = "sw_tenant";
+
+    /** Preference tenant auth to access SiteWhere APIs */
+    String PREF_SITEWHERE_TENANT_AUTH = "sw_tenant_auth";
 }

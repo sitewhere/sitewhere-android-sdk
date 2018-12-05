@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -29,7 +30,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="10dp" >
+            android:padding="10dp"
+            android:visibility="visible">
+
+            <Switch
+                android:id="@+id/use_default_tenant"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="Use default tenant" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tenant_gpr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone">
             <EditText
                 android:id="@+id/tenant"
                 android:layout_width="0dp"
@@ -39,6 +58,23 @@
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text" />
         </LinearLayout>
+        <LinearLayout
+            android:id="@+id/tenant_auth_gpr"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone">
+            <EditText
+                android:id="@+id/tenant_auth"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Tenant auth token"
+                android:imeOptions="flagNoExtractUi"
+                android:inputType="text" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -155,7 +191,6 @@
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             android:visibility="gone" />
-
         <TextView
             android:id="@+id/sitewhere_mqtt_title"
             android:layout_width="wrap_content"

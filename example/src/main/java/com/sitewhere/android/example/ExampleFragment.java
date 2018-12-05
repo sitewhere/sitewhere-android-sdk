@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -76,6 +77,8 @@ public class ExampleFragment extends MapFragment implements LocationListener, Se
      * Interval at which locations are sent
      */
     private static final int SEND_INTERVAL_IN_SECONDS = 5;
+
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     /**
      * Text views for lat, long, altitude
@@ -159,13 +162,14 @@ public class ExampleFragment extends MapFragment implements LocationListener, Se
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+
         // Getting Google Play availability status
-        int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getActivity().getBaseContext());
+        int status = apiAvailability.isGooglePlayServicesAvailable(getActivity().getBaseContext());
 
         // If Google Play not available, show dialog for dealing with it.
         if (status != ConnectionResult.SUCCESS) {
-            int requestCode = 10;
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(status, getActivity(), requestCode);
+            Dialog dialog = apiAvailability.getErrorDialog(getActivity(), status, PLAY_SERVICES_RESOLUTION_REQUEST);
             dialog.show();
         } else {
             hookViews();

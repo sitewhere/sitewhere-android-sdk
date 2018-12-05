@@ -10,10 +10,12 @@ package com.sitewhere.android.example;
 import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +38,7 @@ import com.sitewhere.rest.model.device.event.DeviceMeasurement;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,6 +60,9 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
 
     /** Default Device Type Token */
     public static final String DEFAULT_DEVICE_TYPE_TOKEN = "galaxytab3";
+
+    /** Template for building the Command Delivery Topic Name for the Device */
+    private static final String DEFAULT_COMMAND_DELIVERY_TPL = "SiteWhere/command/%s";
 
     /** Wizard shown to establish preferences */
     private ConnectivityWizardFragment wizard;
@@ -183,30 +189,42 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         Log.d(TAG, "Connected to SiteWhere.");
 
         try {
-            // This registers to receive any event that is sent to SiteWhere with a specific site.
-            // Filter and route configuration with groovy rules scripts will determine what events
-            // get sent to this client.
-            String topic = buildSiteWhereTopic();
-            messageClient.registerForEvents(topic);
-
             String deviceToken = messageClient.getUniqueDeviceId();
             String originator = null;
             String areaToken = DEFAULT_AREA_TOKEN;
             String customerToken = DEFAULT_CUSTOMER_TOKEN;
             String deviceTypeToken = DEFAULT_DEVICE_TYPE_TOKEN;
 
+            // TODO Build metadata for the device
+            Map<String, String> metadata = new HashMap<>();
+
+            WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+            String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+
+            metadata.put("ipaddress", ip);
+
+            // This registers to receive any event that is sent to SiteWhere with a specific command delivery.
+            String commandDeliveryTopic = buildCommandDeliveryTopicForDevice(deviceToken);
+            messageClient.registerForEvents(commandDeliveryTopic);
+
             // This registers device with a specific site.
-            messageClient.sendDeviceRegistration(deviceToken, originator, areaToken, customerToken, deviceTypeToken);
+            messageClient.sendDeviceRegistration(deviceToken, originator, areaToken, customerToken, deviceTypeToken, metadata);
         } catch (SiteWhereMessagingException e) {
             Log.e(TAG, "Unable to send device registration to SiteWhere.", e);
         }
+    }
+
+    private String buildCommandDeliveryTopicForDevice(String deviceToken) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(String.format(DEFAULT_COMMAND_DELIVERY_TPL, deviceToken));
+        return builder.toString();
     }
 
     private String buildSiteWhereTopic() {
         StringBuilder builder = new StringBuilder();
         builder.append("SiteWhere/");
         builder.append(tenant);
-        builder.append("input/protobuf");
+        builder.append("/input/protobuf");
         return builder.toString();
     }
 

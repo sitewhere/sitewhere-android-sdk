@@ -298,14 +298,14 @@ public class SiteWhereMessageClient {
         sendAlert(deviceToken, "", type, message, eventDate);
     }
 
-    public void sendDeviceRegistration(String deviceToken, String originator, String areaToken, String customerToken, String deviceTypeToken) throws SiteWhereMessagingException {
+    public void sendDeviceRegistration(String deviceToken, String originator, String areaToken, String customerToken, String deviceTypeToken, Map<String, String> metadata) throws SiteWhereMessagingException {
         SiteWhere.DeviceEvent.DeviceRegistrationRequest.Builder builder =
                 SiteWhere.DeviceEvent.DeviceRegistrationRequest.newBuilder();
 
         builder.setAreaToken(GOptionalString.newBuilder().setValue(areaToken));
         builder.setCustomerToken(GOptionalString.newBuilder().setValue(customerToken));
         builder.setDeviceTypeToken(GOptionalString.newBuilder().setValue(deviceTypeToken));
-
+        builder.putAllMetadata(metadata);
         SiteWhere.DeviceEvent.DeviceRegistrationRequest payload = builder.build();
 
         sendMessage(Command.SendRegistration, payload, deviceToken, originator, "registration");
