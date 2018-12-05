@@ -368,13 +368,21 @@ public class ConnectivityWizardFragment extends Fragment {
 
 		try {
 			client = clienteFuture.get();
-            executor.submit(new HostVerifier(client));
+			Log.i(TAG, "Client acquired!");
 		} catch (ExecutionException e) {
 			Log.e(TAG, e.getMessage());
+            e.printStackTrace();
 		} catch (InterruptedException e) {
             Log.e(TAG, e.getMessage());
-		}
-	}
+            e.printStackTrace();
+        }
+
+        if (client != null) {
+            executor.submit(new HostVerifier(client));
+        } else {
+		    handleVerifyError("Invalid Authentication", null);
+        }
+    }
 
 	private String buildSiteWhereAPIUri() {
 	    return buildURI(getAPISchema(), getAPIHostname(), getAPIPort(), DEFAULT_SITEWHERE_PATH);
@@ -716,10 +724,11 @@ public class ConnectivityWizardFragment extends Fragment {
 		public ISiteWhereClient call() throws Exception {
 			ISiteWhereClient client = null;
 			try {
-                SiteWhereClient.newBuilder()
+				client = SiteWhereClient.newBuilder()
 						.withConnectionTo(this.schema, this.hostname, this.port)
 						.forUser(this.username, this.password)
-						.build().initialize();
+						.build();
+				client.initialize();
 
 				return client;
 			} catch (SiteWhereException e) {
