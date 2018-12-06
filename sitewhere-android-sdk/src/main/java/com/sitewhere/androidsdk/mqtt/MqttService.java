@@ -371,11 +371,13 @@ public class MqttService extends Service {
 		 */
 		@Override
 		public void send(byte[] payload) throws RemoteException {
-			try {
-				mqttManager.send(payload);
-			} catch (SiteWhereMqttException e) {
-				Log.e(TAG, "Error sending message.", e);
-				throw new RemoteException();
+			if (connection != null && connection.isConnected()) {
+				try {
+					mqttManager.send(payload);
+				} catch (SiteWhereMqttException e) {
+					Log.e(TAG, "Error sending message.", e);
+					throw new RemoteException();
+				}
 			}
 		}
 

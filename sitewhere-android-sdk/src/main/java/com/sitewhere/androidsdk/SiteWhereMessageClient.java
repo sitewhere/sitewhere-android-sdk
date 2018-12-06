@@ -446,10 +446,12 @@ public class SiteWhereMessageClient {
      * Send command to SiteWhere.
      */
     protected void sendCommand(byte[] payload) throws SiteWhereMessagingException {
-        try {
-            mSitewhere.send(payload);
-        } catch (RemoteException e) {
-            throw new SiteWhereMessagingException("Unable to send command.", e);
+        if (mSitewhere != null) {
+            try {
+                mSitewhere.send(payload);
+            } catch (RemoteException e) {
+                throw new SiteWhereMessagingException("Unable to send command.", e);
+            }
         }
     }
 

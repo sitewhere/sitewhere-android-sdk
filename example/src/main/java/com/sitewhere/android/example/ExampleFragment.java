@@ -16,6 +16,7 @@
 package com.sitewhere.android.example;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -49,6 +50,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.sitewhere.androidsdk.SiteWhereMessageClient;
 import com.sitewhere.androidsdk.messaging.SiteWhereMessagingException;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -150,6 +152,8 @@ public class ExampleFragment extends MapFragment implements LocationListener, Se
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         overlay.setLayoutParams(overlayParams);
         example.addView(overlay);
+
+        startDeviceMonitoring();
 
         return example;
     }
@@ -319,21 +323,24 @@ public class ExampleFragment extends MapFragment implements LocationListener, Se
             if (lastLocation != null) {
                 messageClient.sendDeviceLocation(messageClient.getUniqueDeviceId(), lastLocation.getLatitude(),
                         lastLocation.getLongitude(), lastLocation.getAltitude(), null);
-                getActivity().runOnUiThread(new Runnable() {
 
-                    @Override
-                    public void run() {
-                        Toast.makeText(getActivity(), "Sent Location to SiteWhere", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                });
-            }
-            if (lastRotation != null) {
+                Activity activity = getActivity();
+
+                if (activity != null) {
+                    activity.runOnUiThread(new Runnable() {
+
+                        @Override
+                        public void run() {
+//                            Toast.makeText(getActivity(), "Sent Location to SiteWhere", Toast.LENGTH_SHORT)
+//                                    .show();
+                        }
+                    });
+                }
                 Map<String, Double> measurements = new HashMap<>();
                 measurements.put("x.rotation", new Double(lastRotation[0]));
                 measurements.put("y.rotation", new Double(lastRotation[1]));
                 measurements.put("z.rotation", new Double(lastRotation[2]));
-                messageClient.sendDeviceMeasurements(messageClient.getUniqueDeviceId(), measurements, null);
+                messageClient.sendDeviceMeasurements(messageClient.getUniqueDeviceId(), measurements, new Date());
             }
         } catch (Throwable e) {
             Log.e(TAG, "Unable to send location to SiteWhere.", e);
@@ -441,5 +448,10 @@ public class ExampleFragment extends MapFragment implements LocationListener, Se
         public void run() {
             onSendDataToSiteWhere();
         }
+    }
+
+    private boolean isLocationEnabled() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
     }
 }
