@@ -70,31 +70,31 @@ public class ConnectivityWizardFragment extends Fragment {
 	private static final String SUCCESS_COLOR = "#005500";
 
     /** SiteWhere default tenant */
-    private static final String DEFAULT_SITEWHERE_TENANT = "default";
+    public static final String DEFAULT_SITEWHERE_TENANT = "default";
 
     /** SiteWhere default tenant auth token*/
-	private static final String DEFAULT_SITEWHERE_TENANT_AUTH = "SiteWhere1234567890";
+    public static final String DEFAULT_SITEWHERE_TENANT_AUTH = "SiteWhere1234567890";
 
 	/** SiteWhere default Username */
-    private static final String DEFAULT_SITEWHERE_USERNAME = "admin";
+    public static final String DEFAULT_SITEWHERE_USERNAME = "admin";
 
     /** SiteWhere default Password */
-    private static final String DEFAULT_SITEWHERE_PASSWORD = "password";
+    public static final String DEFAULT_SITEWHERE_PASSWORD = "password";
 
     /** SiteWhere default schema */
-    private static final String DEFAULT_SITEWHERE_SCHEMA = "http";
+    public static final String DEFAULT_SITEWHERE_SCHEMA = "http";
 
     /** SiteWhere default Hostname */
-    private static final String DEFAULT_SITEWHERE_HOSTNAME = "localhost";
+    public static final String DEFAULT_SITEWHERE_HOSTNAME = "localhost";
 
     /** SiteWhere default port */
-    private static final int DEFAULT_SITEWHERE_PORT = 8080;
+    public static final int DEFAULT_SITEWHERE_PORT = 8080;
 
     /** SiteWhere default path */
-    private static final String DEFAULT_SITEWHERE_PATH = "sitewhere/api/";
+    public static final String DEFAULT_SITEWHERE_PATH = "sitewhere/api/";
 
     /** SiteWhere default URI */
-    private static final String DEFAULT_SITEWHERE_URI;
+    public static final String DEFAULT_SITEWHERE_URI;
 
 	static {
         DEFAULT_SITEWHERE_URI = buildURI(DEFAULT_SITEWHERE_SCHEMA,
@@ -521,11 +521,14 @@ public class ConnectivityWizardFragment extends Fragment {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		SharedPreferences.Editor editor = prefs.edit();
 
-		String api = buildSiteWhereAPIUri();
-		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_URI, api);
-        editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_USERNAME, username.getText().toString());
+		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_SCHEMA, getAPISchema());
+		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_HOSTNAME, getAPIHostname());
+		editor.putInt(IConnectivityPreferences.PREF_SITEWHERE_API_PORT, getAPIPort());
+		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_USERNAME, username.getText().toString());
         editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_PASSWORD, password.getText().toString());
-		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_API_TENANT, tenant.getText().toString());
+		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_TENANT, tenant.getText().toString());
+		editor.putString(IConnectivityPreferences.PREF_SITEWHERE_TENANT_AUTH, tenantAuth.getText().toString());
+		editor.putInt(IConnectivityPreferences.PRE_SITEWHERE_MQTT_PORT, Integer.valueOf(mqttPortNumber.getText().toString()));
 
 		editor.commit();
 

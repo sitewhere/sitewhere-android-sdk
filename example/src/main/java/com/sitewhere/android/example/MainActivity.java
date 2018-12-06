@@ -85,15 +85,15 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
 
         // Verify that SiteWhere API location has been specified.
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String apiUrl = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_URI, null);
-        this.tenant = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_TENANT, null);
+        String hostname = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_API_HOSTNAME, null);
+        this.tenant = prefs.getString(IConnectivityPreferences.PREF_SITEWHERE_TENANT, null);
 
         // Push current device id into MQTT settings, then get current values.
         MqttServicePreferences updated = new MqttServicePreferences();
         updated.setDeviceToken(messageClient.getUniqueDeviceId());
         IMqttServicePreferences mqtt = MqttServicePreferences.update(updated, this);
 
-        if ((apiUrl == null) || (mqtt.getBrokerHostname() == null)) {
+        if ((hostname == null) || (mqtt.getBrokerHostname() == null)) {
             initConnectivityWizard();
         } else {
             initExampleApplication();

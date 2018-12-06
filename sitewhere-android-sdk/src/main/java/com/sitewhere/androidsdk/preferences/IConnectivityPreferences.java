@@ -22,12 +22,6 @@ package com.sitewhere.androidsdk.preferences;
  */
 public interface IConnectivityPreferences {
 
-	/** Preference for base URI used to access SiteWhere APIs */
-	String PREF_SITEWHERE_API_URI = "sw_api_uri";
-
-	/** Preference tenant used to access SiteWhere APIs */
-	String PREF_SITEWHERE_API_TENANT = "sw_api_tenant";
-
 	/** Preference for username used to access SiteWhere APIs */
     String PREF_SITEWHERE_API_USERNAME = "sw_api_username";
 
@@ -48,4 +42,7 @@ public interface IConnectivityPreferences {
 
     /** Preference tenant auth to access SiteWhere APIs */
     String PREF_SITEWHERE_TENANT_AUTH = "sw_tenant_auth";
+
+    /** Preference MQTT Port */
+    String PRE_SITEWHERE_MQTT_PORT = "sw_mqtt_port";
 }
