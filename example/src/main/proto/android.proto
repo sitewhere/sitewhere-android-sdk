@@ -1,5 +1,3 @@
-syntax = "proto3";
-
 package com.sitewhere.android;
 
 option java_outer_classname = "Android";
@@ -7,22 +5,20 @@ option java_outer_classname = "Android";
 option optimize_for = LITE_RUNTIME;
 
 // Google Protocol Buffer for 'Galaxy Tab 3'.
-// Generated on 2018.11.28 16:45:55 GMT
+// Generated on 2018.12.07 19:35:45 GMT
 message Spec_galaxytab3 {
 
-    enum Command {
-        CHANGEBACKGROUND = 0;
-    }
+    enum Command {CHANGEBACKGROUND = 1; }
 
     message _Header {
-        Command command = 1;
-        string originator = 2;
-        string nestedPath = 3;
-        string nestedSpec = 4;
+        required Command command = 1;
+        optional string originator = 2;
+        optional string nestedPath = 3;
+        optional string nestedSpec = 4;
     }
 
     message changeBackground {
-        string color = 1;
+        required string color = 1;
     }
 
 }

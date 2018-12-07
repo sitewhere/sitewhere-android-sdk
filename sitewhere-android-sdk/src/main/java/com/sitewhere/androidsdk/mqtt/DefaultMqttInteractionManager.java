@@ -40,7 +40,7 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	private static final String SYSTEM_TOPIC_PREFIX = "SiteWhere/system/";
 
 	/** Topic prefix for inbound command messages */
-	private static final String COMMAND_TOPIC_PREFIX = "SiteWhere/commands/";
+	private static final String COMMAND_TOPIC_PREFIX = "SiteWhere/command/";
 
 	/** SiteWhere Defult tenant */
 	private static final String DEFAULT_TENANT_ID = "default";
