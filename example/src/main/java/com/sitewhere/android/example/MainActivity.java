@@ -343,29 +343,38 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
      * @see SiteWhereMessageClientCallback
      */
     public void onReceivedCustomCommand(byte[] payload) {
-        Log.d(TAG, "Received custom command.");
-        ByteArrayInputStream stream = new ByteArrayInputStream(payload);
-        try {
-            Android.Spec_galaxytab3._Header header = Android.Spec_galaxytab3._Header.parseDelimitedFrom(stream);
-            switch (header.getCommand()) {
-                case CHANGEBACKGROUND: {
-                    Android.Spec_galaxytab3.changeBackground cb = Android.Spec_galaxytab3.changeBackground.parseDelimitedFrom(stream);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            getWindow().getDecorView().setBackgroundColor(Color.parseColor(cb.getColor()));
-                        }
-                    });
-                    messageClient.sendAck(messageClient.getUniqueDeviceId(), header.getOriginator(), "Updated background color.");
-                    Log.i(TAG, "Sent reponse to 'changeBackground' command.");
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "IO exception processing custom command.", e);
-        } catch (SiteWhereMessagingException e) {
-            Log.e(TAG, "Messaging exception processing custom command.", e);
-        }
+//        Log.d(TAG, "Received custom command.");
+//        ByteArrayInputStream stream = new ByteArrayInputStream(payload);
+//        try {
+//            Android.Spec_galaxytab3._Header header = Android.Spec_galaxytab3._Header.parseDelimitedFrom(stream);
+//            switch (header.getCommand()) {
+//                case CHANGEBACKGROUND: {
+//                    Android.Spec_galaxytab3.changeBackground cb = Android.Spec_galaxytab3.changeBackground.parseDelimitedFrom(stream);
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            getWindow().getDecorView().setBackgroundColor(Color.parseColor(cb.getColor()));
+//                        }
+//                    });
+//                    messageClient.sendAck(messageClient.getUniqueDeviceId(), header.getOriginator(), "Updated background color.");
+//                    Log.i(TAG, "Sent reponse to 'changeBackground' command.");
+//                    break;
+//                }
+//            }
+//        } catch (IOException e) {
+//            Log.e(TAG, "IO exception processing custom command.", e);
+//        } catch (SiteWhereMessagingException e) {
+//            Log.e(TAG, "Messaging exception processing custom command.", e);
+//        }
     }
 
+    public void changeBackground(String color) {
+        Log.i(TAG, "Got change background command for color " + color);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                getWindow().getDecorView().setBackgroundColor(Color.parseColor(color));
+            }
+        });
+    }
 }

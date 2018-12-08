@@ -86,7 +86,7 @@ public class SiteWhereMessageClient {
          */
         @Override
         public void receivedCustomCommand(byte[] payload) throws RemoteException {
-            onReceivedCustomCommand(payload);
+            onReceivedCustomCommand(mCallback, payload);
 
             if (mCallback != null)
                 mCallback.onReceivedCustomCommand(payload);
@@ -455,7 +455,10 @@ public class SiteWhereMessageClient {
         }
     }
 
-    protected void onReceivedCustomCommand(byte[] payload) {
+    protected void onReceivedCustomCommand(Object caller, byte[] payload) {
+        if (caller == null) {
+            return;
+        }
         try {
             ByteArrayInputStream encoded = new ByteArrayInputStream(payload);
             ObjectInputStream in = new ObjectInputStream(encoded);
@@ -479,11 +482,11 @@ public class SiteWhereMessageClient {
 
             Method method = null;
             try {
-                method = getClass().getMethod(commandName, typesWithOriginator);
-                method.invoke(this, parametersWithOriginator);
+                method = caller.getClass().getMethod(commandName, typesWithOriginator);
+                method.invoke(caller, parametersWithOriginator);
             } catch (NoSuchMethodException e) {
-                method = getClass().getMethod(commandName, types);
-                method.invoke(this, parameters);
+                method = caller.getClass().getMethod(commandName, types);
+                method.invoke(caller, parameters);
             }
         } catch (StreamCorruptedException e) {
             Log.e(TAG, "Unable to decode command in hybrid mode.", e);

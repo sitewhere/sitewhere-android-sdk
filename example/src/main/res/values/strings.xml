@@ -51,4 +51,5 @@
     <string name="pref_sw_mqtt_uri_dialog_title">Enter MQTT Broker Information</string>
     <string name="pref_sw_mqtt_uri_title">MQTT Host</string>
     <string name="pref_sw_mqtt_uri_summary">Hostname for MQTT Broker (hostname:port)</string>
+    <string name="tenant_name_default">Tenant name (default)</string>
 </resources>

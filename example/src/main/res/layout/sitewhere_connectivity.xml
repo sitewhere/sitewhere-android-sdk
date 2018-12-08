@@ -54,7 +54,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Tenant name (default)"
+                android:hint="@string/tenant_name_default"
                 android:imeOptions="flagNoExtractUi"
                 android:inputType="text" />
         </LinearLayout>
