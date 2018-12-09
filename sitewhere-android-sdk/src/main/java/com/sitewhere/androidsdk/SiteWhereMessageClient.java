@@ -110,10 +110,10 @@ public class SiteWhereMessageClient {
         }
 
         /*
-                 * (non-Javadoc)
-                 *
-                 * @see com.sitewhere.android.messaging.IFromSiteWhere#disconnected()
-                 */
+         * (non-Javadoc)
+         *
+         * @see com.sitewhere.android.messaging.IFromSiteWhere#disconnected()
+         */
         @Override
         public void disconnected() throws RemoteException {
             if (mCallback != null)
@@ -236,6 +236,7 @@ public class SiteWhereMessageClient {
             if (mSitewhere != null) {
                 try {
                     mSitewhere.registerForEvents(topic);
+                    Log.e(TAG, String.format("Registering to listen for events on '%s'.", topic));
                 } catch (RemoteException e) {
                     Log.e(TAG, "Unable to register for events from response processor.", e);
                 }
@@ -276,7 +277,7 @@ public class SiteWhereMessageClient {
             if (eventDate == null)
                 eventDate = new Date();
 
-            for(String measurementName : measurements.keySet()) {
+            for (String measurementName : measurements.keySet()) {
                 Double measurementValue = measurements.get(measurementName);
                 sendMeasurement(deviceToken, "", eventDate, measurementName, measurementValue);
             }

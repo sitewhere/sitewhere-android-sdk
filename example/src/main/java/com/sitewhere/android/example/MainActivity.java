@@ -49,31 +49,49 @@ import java.util.Map;
  */
 public class MainActivity extends AppCompatActivity implements IConnectivityWizardListener, SiteWhereMessageClientCallback {
 
-    /** Tag for logging */
+    /**
+     * Tag for logging
+     */
     private static final String TAG = "SiteWhereExample";
 
-    /** Default Area Token */
+    /**
+     * Default Area Token
+     */
     public static final String DEFAULT_AREA_TOKEN = "southeast";
 
-    /** Default Customer Token */
+    /**
+     * Default Customer Token
+     */
     public static final String DEFAULT_CUSTOMER_TOKEN = "acme";
 
-    /** Default Device Type Token */
+    /**
+     * Default Device Type Token
+     */
     public static final String DEFAULT_DEVICE_TYPE_TOKEN = "galaxytab3";
 
-    /** Template for building the Command Delivery Topic Name for the Device */
-    private static final String DEFAULT_COMMAND_DELIVERY_TPL = "SiteWhere/command/%s";
+    /**
+     * Template for building the Command Delivery Topic Name for the Device
+     */
+    private static final String DEFAULT_COMMAND_DELIVERY_TPL = "SiteWhere/%s/command/%s";
 
-    /** Wizard shown to establish preferences */
+    /**
+     * Wizard shown to establish preferences
+     */
     private ConnectivityWizardFragment wizard;
 
-    /** Fragment with example application */
+    /**
+     * Fragment with example application
+     */
     private ExampleFragment example;
 
-    /** SiteWhere tenant */
+    /**
+     * SiteWhere tenant
+     */
     private String tenant;
 
-    /** Message client for sending events to SiteWhere */
+    /**
+     * Message client for sending events to SiteWhere
+     */
     private SiteWhereMessageClient messageClient;
 
     @Override
@@ -98,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         } else {
             initExampleApplication();
         }
-     }
+    }
 
     /**
      * Adds the connectivity wizard if preferences have not been set.
@@ -115,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
     /**
      * Show the settings screen
      */
-    private void  initSettinsScreen(){
+    private void initSettinsScreen() {
 
     }
 
@@ -216,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
 
     private String buildCommandDeliveryTopicForDevice(String deviceToken) {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format(DEFAULT_COMMAND_DELIVERY_TPL, deviceToken));
+        builder.append(String.format(DEFAULT_COMMAND_DELIVERY_TPL, tenant, deviceToken));
         return builder.toString();
     }
 
@@ -373,7 +391,8 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                getWindow().getDecorView().setBackgroundColor(Color.parseColor(color));
+                InterfaceUtils.showAlert(MainActivity.this, "Color was " + color,
+                        "Color updated");
             }
         });
     }
