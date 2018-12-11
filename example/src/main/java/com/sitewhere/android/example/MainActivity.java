@@ -11,6 +11,7 @@ import android.app.FragmentTransaction;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -109,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         // Push current device id into MQTT settings, then get current values.
         MqttServicePreferences updated = new MqttServicePreferences();
         updated.setDeviceToken(messageClient.getUniqueDeviceId());
+        updated.setTenant(this.tenant);
         IMqttServicePreferences mqtt = MqttServicePreferences.update(updated, this);
 
         if ((hostname == null) || (mqtt.getBrokerHostname() == null)) {
@@ -213,13 +215,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
             String customerToken = DEFAULT_CUSTOMER_TOKEN;
             String deviceTypeToken = DEFAULT_DEVICE_TYPE_TOKEN;
 
-            // TODO Build metadata for the device
-            Map<String, String> metadata = new HashMap<>();
-
-            WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
-            String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
-
-            metadata.put("ipaddress", ip);
+            Map<String, String> metadata = buildRegistrationMetadata();
 
             // This registers to receive any event that is sent to SiteWhere with a specific command delivery.
             String commandDeliveryTopic = buildCommandDeliveryTopicForDevice(deviceToken);
@@ -230,6 +226,23 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
         } catch (SiteWhereMessagingException e) {
             Log.e(TAG, "Unable to send device registration to SiteWhere.", e);
         }
+    }
+
+    private Map<String, String> buildRegistrationMetadata() {
+        Map<String, String> metadata = new HashMap<>();
+
+        WifiManager wm = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
+
+        String reqString = Build.MANUFACTURER
+                + " " + Build.MODEL + " " + Build.VERSION.RELEASE
+                + " " + Build.VERSION_CODES.class.getFields()[android.os.Build.VERSION.SDK_INT].getName();
+
+        metadata.put("ipaddress", ip);
+        metadata.put("android.os.version", Build.VERSION.BASE_OS);
+        metadata.put("android.os.description", reqString);
+
+        return  metadata;
     }
 
     private String buildCommandDeliveryTopicForDevice(String deviceToken) {
@@ -301,7 +314,7 @@ public class MainActivity extends AppCompatActivity implements IConnectivityWiza
 
     /*
      * (non-Javadoc)
-     * //TODO Check this code
+     *
      * @see SiteWhereMessageClientCallback
      */
     @Override

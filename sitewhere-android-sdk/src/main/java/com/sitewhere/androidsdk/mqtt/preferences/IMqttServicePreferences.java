@@ -33,6 +33,9 @@ public interface IMqttServicePreferences extends Parcelable {
 	/** Preference for device hardware id */
 	public static final String PREF_SITEWHERE_DEVICE_TOKEN = "device_token";
 
+	/** Preference for tenamt */
+	public static final String PREF_SITEWHERE_TENANT = "tenant";
+
 	/**
 	 * Get MQTT broker host name.
 	 * 
@@ -53,4 +56,10 @@ public interface IMqttServicePreferences extends Parcelable {
 	 * @return
 	 */
 	public String getDeviceToken();
+
+    /**
+     * Get the tenant used by the device.
+     * @return
+     */
+	public String getTenant();
 }

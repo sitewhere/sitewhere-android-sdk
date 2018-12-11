@@ -62,8 +62,9 @@ public class MqttService extends Service {
 	/** MQTT connection */
 	private BlockingConnection connection;
 
+	// Start up management entities.
 	/** Manages interactions with MQTT pub/sub */
-	private IMqttInteractionManager mqttManager;
+	private IMqttInteractionManager mqttManager = new DefaultMqttInteractionManager();
 
 	/** Manages client registration and notification */
 	private RegistrationManager registrationManager;
@@ -86,9 +87,6 @@ public class MqttService extends Service {
 		// Reset connection state.
 		connectionState = MqttConnectionState.Disconnected;
 
-		// Start up management entities.
-		// TODO Bubble up tenantId
-		mqttManager = new DefaultMqttInteractionManager("default");
 		registrationManager = new RegistrationManager();
 		mqttManager.setCallback(registrationManager);
 
@@ -193,7 +191,10 @@ public class MqttService extends Service {
 					connection = mqtt.blockingConnection();
 					connection.connect();
 					Log.d(TAG, "Connected to MQTT.");
-					mqttManager.connect(configuration.getDeviceToken(), connection);
+					mqttManager.connect(
+							configuration.getTenant(),
+							configuration.getDeviceToken(),
+							connection);
 					registrationManager.connected();
 					connectionState = MqttConnectionState.Connected;
 				} catch (URISyntaxException e) {
@@ -214,7 +215,10 @@ public class MqttService extends Service {
 		if (isMqttConnected()) {
 			try {
 				Log.d(TAG, "Disconnecting from MQTT...");
-				mqttManager.disconnect(configuration.getDeviceToken(), connection);
+				mqttManager.disconnect(
+						configuration.getTenant(),
+						configuration.getDeviceToken(),
+						connection);
 				connection.disconnect();
 				connection = null;
 				connectionState = MqttConnectionState.Disconnected;

@@ -66,17 +66,16 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	/** Used to handle message processing */
 	private ExecutorService executor;
 
-	/** Tenant Id */
-	private String tenantId = DEFAULT_TENANT_ID;
-
 	/** Message encoding */
 	private String encoding = DEFAULT_MESSAGE_ENCODING;
 
-	public DefaultMqttInteractionManager(String tenantId) {
+	/** Default tenant id */
+	private String tenantId = DEFAULT_TENANT_ID;
+
+	public DefaultMqttInteractionManager() {
 		super();
-		this.tenantId = tenantId;
-		this.commandTopicName = MQTT_TOPIC_PREFIX + tenantId + "/command/";
-		this.systemTopicName = MQTT_TOPIC_PREFIX + tenantId + "/system/";
+		this.commandTopicName = MQTT_TOPIC_PREFIX  + "command/";
+		this.systemTopicName = MQTT_TOPIC_PREFIX  + "system/";
 	}
 
 	/*
@@ -86,7 +85,7 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	 * org.fusesource.mqtt.client.BlockingConnection)
 	 */
 	@Override
-	public void connect(String deviceToken, BlockingConnection connection) throws SiteWhereMqttException {
+	public void connect(String tenantId, String deviceToken, BlockingConnection connection) throws SiteWhereMqttException {
 		this.connection = connection;
 		if ((executor != null) && (!executor.isShutdown())) {
 			executor.shutdownNow();
@@ -95,6 +94,7 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 		executor.submit(new MqttMessageProcessor());
 		commandTopic = new Topic(getCommandTopicName() + deviceToken, QoS.EXACTLY_ONCE);
 		systemTopic = new Topic(getSystemTopicName() + deviceToken, QoS.EXACTLY_ONCE);
+		this.tenantId = tenantId;
 		try {
 			Log.d(MqttService.TAG, "System command topic: " + systemTopic.name());
 			Log.d(MqttService.TAG, "Custom command topic: " + commandTopic.name());
@@ -144,7 +144,7 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
          * org.fusesource.mqtt.client.BlockingConnection)
          */
 	@Override
-	public void disconnect(String deviceToken, BlockingConnection connection) throws SiteWhereMqttException {
+	public void disconnect(String tenantId, String deviceToken, BlockingConnection connection) throws SiteWhereMqttException {
 		try {
 			connection.unsubscribe(new String[] { getCommandTopicName() + deviceToken,
 					getSystemTopicName() + deviceToken });

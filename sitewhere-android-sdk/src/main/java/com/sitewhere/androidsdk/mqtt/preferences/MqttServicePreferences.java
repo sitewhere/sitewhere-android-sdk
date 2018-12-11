@@ -34,6 +34,9 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 	/** Default MQTT broker port */
 	public static final int DEFAULT_BROKER_PORT = 1883;
 
+	/** Default tenant */
+	private static final String DEFAULT_TENANT = "default";
+
 	/** MQTT broker host name */
 	private String brokerHostname;
 
@@ -43,6 +46,9 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 	/** Device token */
 	private String deviceToken;
 
+	/** Tenant */
+	private String tenant = DEFAULT_TENANT;
+
 	public MqttServicePreferences() {
 	}
 
@@ -50,6 +56,7 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 		this.brokerHostname = parcel.readString();
 		this.brokerPort = parcel.readInt();
 		this.deviceToken = parcel.readString();
+		this.tenant = parcel.readString();
 	}
 
 	/**
@@ -89,6 +96,8 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 				DEFAULT_BROKER_PORT));
 		mqtt.setDeviceToken(prefs.getString(
 				IMqttServicePreferences.PREF_SITEWHERE_DEVICE_TOKEN, null));
+		mqtt.setTenant(prefs.getString(
+		        IMqttServicePreferences.PREF_SITEWHERE_TENANT, null));
 		return mqtt;
 	}
 
@@ -114,6 +123,11 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 			editor.putString(IMqttServicePreferences.PREF_SITEWHERE_DEVICE_TOKEN,
 					updated.getDeviceToken());
 		}
+		if (updated.getTenant() != null) {
+			editor.putString(IMqttServicePreferences.PREF_SITEWHERE_TENANT,
+					updated.getTenant());
+		}
+
 		editor.apply();
 		return MqttServicePreferences.loadFrom(prefs);
 	}
@@ -155,6 +169,14 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 
 	public void setDeviceToken(String deviceToken) {
 		this.deviceToken = deviceToken;
+	}
+
+	public String getTenant() {
+		return this.tenant;
+	}
+
+	public void setTenant(String tenant) {
+		this.tenant = tenant;
 	}
 
 	/*
@@ -202,6 +224,7 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 		parcel.writeString(getBrokerHostname());
 		parcel.writeInt(getBrokerPort());
 		parcel.writeString(getDeviceToken());
+		parcel.writeString(getTenant());
 	}
 
 	public static final Parcelable.Creator<MqttServicePreferences> CREATOR = new Parcelable.Creator<MqttServicePreferences>() {
