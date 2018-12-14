@@ -18,8 +18,9 @@ import com.sitewhere.androidsdk.messaging.ISiteWhereMessaging;
 import com.sitewhere.androidsdk.messaging.IToSiteWhere;
 import com.sitewhere.androidsdk.messaging.SiteWhereMessagingException;
 import com.sitewhere.androidsdk.mqtt.MqttService;
-import com.sitewhere.device.communication.protobuf.proto.Sitewhere;
-import com.sitewhere.spi.device.event.IDeviceEventOriginator;
+import com.sitewhere.communication.protobuf.proto.SiteWhere;
+import com.sitewhere.rest.model.device.event.DeviceEventOriginator;
+//import com.sitewhere.spi.device.event.IDeviceEventOriginator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,7 +32,11 @@ import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Map;
 
-//import com.sitewhere.spi.device.event.IDeviceEventOriginator;
+import com.sitewhere.communication.protobuf.proto.SiteWhere.GOptionalString;
+import com.sitewhere.communication.protobuf.proto.SiteWhere.GOptionalFixed64;
+import com.sitewhere.communication.protobuf.proto.SiteWhere.GOptionalDouble;
+import com.sitewhere.communication.protobuf.proto.SiteWhere.DeviceEvent.Command;
+
 
 /**
  * Created by CBICK on 10/9/15.
@@ -81,7 +86,7 @@ public class SiteWhereMessageClient {
          */
         @Override
         public void receivedCustomCommand(byte[] payload) throws RemoteException {
-            onReceivedCustomCommand(payload);
+            onReceivedCustomCommand(mCallback, payload);
 
             if (mCallback != null)
                 mCallback.onReceivedCustomCommand(payload);
@@ -105,10 +110,10 @@ public class SiteWhereMessageClient {
         }
 
         /*
-                 * (non-Javadoc)
-                 *
-                 * @see com.sitewhere.android.messaging.IFromSiteWhere#disconnected()
-                 */
+         * (non-Javadoc)
+         *
+         * @see com.sitewhere.android.messaging.IFromSiteWhere#disconnected()
+         */
         @Override
         public void disconnected() throws RemoteException {
             if (mCallback != null)
@@ -231,6 +236,7 @@ public class SiteWhereMessageClient {
             if (mSitewhere != null) {
                 try {
                     mSitewhere.registerForEvents(topic);
+                    Log.e(TAG, String.format("Registering to listen for events on '%s'.", topic));
                 } catch (RemoteException e) {
                     Log.e(TAG, "Unable to register for events from response processor.", e);
                 }
@@ -266,130 +272,162 @@ public class SiteWhereMessageClient {
         return id;
     }
 
-    public void sendDeviceMeasurements(String hardwareId, Map<String, Double> measurements, @Nullable Date eventDate) throws SiteWhereMessagingException {
-        if (eventDate == null)
-            eventDate = new Date();
+    public void sendDeviceMeasurements(String deviceToken, Map<String, Double> measurements, @Nullable Date eventDate) throws SiteWhereMessagingException {
+        if (measurements != null && !measurements.isEmpty()) {
+            if (eventDate == null)
+                eventDate = new Date();
 
-        sendMeasurement(hardwareId, "", measurements, eventDate);
-    }
+            for (String measurementName : measurements.keySet()) {
+                Double measurementValue = measurements.get(measurementName);
+                sendMeasurement(deviceToken, "", eventDate, measurementName, measurementValue);
+            }
 
-    public void sendDeviceLocation(String hardwareId, double latitude, double longitude, double elevation, @Nullable Date eventDate) throws SiteWhereMessagingException {
-        if (eventDate == null)
-            eventDate = new Date();
-
-        sendLocation(hardwareId, "", latitude, longitude, elevation, eventDate);
-    }
-
-    public void sendDeviceAlert(String hardwareId, String type, String message, @Nullable Date eventDate) throws SiteWhereMessagingException {
-        if (eventDate == null)
-            eventDate = new Date();
-
-        sendAlert(hardwareId, "", type, message, eventDate);
-    }
-
-    public void sendDeviceRegistration(String hardwareId, String specificationToken, String originator, @Nullable String siteToken) throws SiteWhereMessagingException {
-        Sitewhere.SiteWhere.RegisterDevice.Builder rb = Sitewhere.SiteWhere.RegisterDevice.newBuilder();
-        rb.setHardwareId(hardwareId).setSpecificationToken(specificationToken);
-        if (siteToken != null) {
-            rb.setSiteToken(siteToken);
         }
-        sendMessage(Sitewhere.SiteWhere.Command.SEND_REGISTRATION, rb.build(), originator, "registration");
+    }
+
+    public void sendDeviceLocation(String deviceToken, double latitude, double longitude, double elevation, @Nullable Date eventDate) throws SiteWhereMessagingException {
+        if (eventDate == null)
+            eventDate = new Date();
+
+        sendLocation(deviceToken, "", latitude, longitude, elevation, eventDate);
+    }
+
+    public void sendDeviceAlert(String deviceToken, String type, String message, @Nullable Date eventDate) throws SiteWhereMessagingException {
+        if (eventDate == null)
+            eventDate = new Date();
+
+        sendAlert(deviceToken, "", type, message, eventDate);
+    }
+
+    public void sendDeviceRegistration(String deviceToken, String originator, String areaToken, String customerToken, String deviceTypeToken, Map<String, String> metadata) throws SiteWhereMessagingException {
+        SiteWhere.DeviceEvent.DeviceRegistrationRequest.Builder builder =
+                SiteWhere.DeviceEvent.DeviceRegistrationRequest.newBuilder();
+
+        builder.setAreaToken(GOptionalString.newBuilder().setValue(areaToken));
+        builder.setCustomerToken(GOptionalString.newBuilder().setValue(customerToken));
+        builder.setDeviceTypeToken(GOptionalString.newBuilder().setValue(deviceTypeToken));
+        builder.putAllMetadata(metadata);
+        SiteWhere.DeviceEvent.DeviceRegistrationRequest payload = builder.build();
+
+        sendMessage(Command.SendRegistration, payload, deviceToken, originator, "registration");
     }
 
     /**
      * Send an acknowledgement event to SiteWhere.
      *
-     * @param hardwareId
+     * @param deviceToken
      * @param originator
      * @param message
      * @throws SiteWhereMessagingException
      */
-    public void sendAck(String hardwareId, String originator, String message)
+    public void sendAck(String deviceToken, String originator, String message)
             throws SiteWhereMessagingException {
-        Sitewhere.SiteWhere.Acknowledge.Builder builder = Sitewhere.SiteWhere.Acknowledge.newBuilder();
-        Sitewhere.SiteWhere.Acknowledge ack = builder.setHardwareId(hardwareId).setMessage(message).build();
-        sendMessage(Sitewhere.SiteWhere.Command.SEND_ACKNOWLEDGEMENT, ack, originator, "ack");
+
+        SiteWhere.DeviceEvent.DeviceAcknowledge.Builder builder = SiteWhere.DeviceEvent.DeviceAcknowledge.newBuilder();
+
+        builder.setMessage(GOptionalString.newBuilder().setValue(message));
+
+        SiteWhere.DeviceEvent.DeviceAcknowledge payload = builder.build();
+
+        sendMessage(Command.SendAcknowledgement, payload, deviceToken, originator, "ack");
     }
+
 
     /**
      * Send a measurement event to SiteWhere.
      *
-     * @param hardwareId
+     * @param deviceToken
      * @param originator
-     * @param measurements
      * @param eventDate
+     * @param measurementName
+     * @param measurementValue
      * @throws SiteWhereMessagingException
      */
-    private void sendMeasurement(String hardwareId, String originator, Map<String, Double> measurements, Date eventDate)
+    private void sendMeasurement(String deviceToken, String originator, Date eventDate, String measurementName, Double measurementValue)
             throws SiteWhereMessagingException {
-        Sitewhere.Model.DeviceMeasurements.Builder mxsb = Sitewhere.Model.DeviceMeasurements.newBuilder();
-        mxsb.setEventDate(eventDate.getTime());
-        mxsb.setHardwareId(hardwareId);
 
-        Sitewhere.Model.Measurement.Builder mxb = Sitewhere.Model.Measurement.newBuilder();
-        for (String key : measurements.keySet()) {
-            mxb.setMeasurementId(key).setMeasurementValue(measurements.get(key));
-            mxsb.setHardwareId(hardwareId).addMeasurement(mxb.build());
-        }
+        SiteWhere.DeviceEvent.DeviceMeasurement.Builder builder = SiteWhere.DeviceEvent.DeviceMeasurement.newBuilder();
 
-        sendMessage(Sitewhere.SiteWhere.Command.SEND_DEVICE_MEASUREMENTS, mxsb.build(), originator, "measurement");
+        builder.setEventDate(GOptionalFixed64.newBuilder().setValue(eventDate.getTime()));
+        builder.setMeasurementName(GOptionalString.newBuilder().setValue(measurementName));
+        builder.setMeasurementValue(GOptionalDouble.newBuilder().setValue(measurementValue));
+
+        SiteWhere.DeviceEvent.DeviceMeasurement payload = builder.build();
+        sendMessage(Command.SendMeasurement, payload, deviceToken, originator, "measurement");
     }
 
     /**
      * Send a location event to SiteWhere.
      *
-     * @param hardwareId
+     * @param deviceToken
      * @param originator
      * @param latitude
      * @param longitude
      * @param elevation
      * @throws SiteWhereMessagingException
      */
-    private void sendLocation(String hardwareId, String originator, double latitude, double longitude,
+    private void sendLocation(String deviceToken, String originator, double latitude, double longitude,
                               double elevation, Date eventDate) throws SiteWhereMessagingException {
-        Sitewhere.Model.DeviceLocation.Builder lb = Sitewhere.Model.DeviceLocation.newBuilder();
-        lb.setHardwareId(hardwareId).setLatitude(latitude).setLongitude(longitude).setElevation(elevation);
-        lb.setEventDate(eventDate.getTime());
-        sendMessage(Sitewhere.SiteWhere.Command.SEND_DEVICE_LOCATION, lb.build(), originator, "location");
+
+        SiteWhere.DeviceEvent.DeviceLocation.Builder builder = SiteWhere.DeviceEvent.DeviceLocation.newBuilder();
+
+        builder.setEventDate(GOptionalFixed64.newBuilder().setValue(eventDate.getTime()));
+        builder.setLatitude(GOptionalDouble.newBuilder().setValue(latitude));
+        builder.setLongitude(GOptionalDouble.newBuilder().setValue(longitude));
+        builder.setElevation(GOptionalDouble.newBuilder().setValue(elevation));
+
+        SiteWhere.DeviceEvent.DeviceLocation payload = builder.build();
+
+        sendMessage(Command.SendLocation, payload, deviceToken, originator, "location");
     }
 
     /**
      * Send an alert event to SiteWhere.
      *
-     * @param hardwareId
+     * @param deviceToken
      * @param originator
      * @param alertType
      * @param message
      * @throws SiteWhereMessagingException
      */
-    private void sendAlert(String hardwareId, String originator, String alertType, String message, Date eventDate)
+    private void sendAlert(String deviceToken, String originator, String alertType, String message, Date eventDate)
             throws SiteWhereMessagingException {
-        Sitewhere.Model.DeviceAlert.Builder ab = Sitewhere.Model.DeviceAlert.newBuilder();
-        ab.setHardwareId(hardwareId).setAlertType(alertType).setAlertMessage(message);
-        ab.setEventDate(eventDate.getTime());
-        sendMessage(Sitewhere.SiteWhere.Command.SEND_DEVICE_ALERT, ab.build(), originator, "alert");
+
+        SiteWhere.DeviceEvent.DeviceAlert.Builder builder = SiteWhere.DeviceEvent.DeviceAlert.newBuilder();
+
+        builder.setEventDate(GOptionalFixed64.newBuilder().setValue(eventDate.getTime()));
+        builder.setAlertType(GOptionalString.newBuilder().setValue(alertType));
+        builder.setAlertMessage(GOptionalString.newBuilder().setValue(message));
+        SiteWhere.DeviceEvent.DeviceAlert payload = builder.build();
+
+        sendMessage(Command.SendAlert, payload, deviceToken, originator, "alert");
     }
 
     /**
      * Build message from header and message, then send it to the underlying delivery mechanism.
      *
      * @param command
-     * @param message
+     * @param payload
+     * @param deviceToken
      * @param originator
      * @param label
      * @throws SiteWhereMessagingException
      */
-    protected void sendMessage(Sitewhere.SiteWhere.Command command, AbstractMessageLite message, String originator,
-                               String label) throws SiteWhereMessagingException {
+    protected void sendMessage(Command command, AbstractMessageLite payload, String deviceToken, String originator, String label) throws SiteWhereMessagingException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            Sitewhere.SiteWhere.Header.Builder builder = Sitewhere.SiteWhere.Header.newBuilder();
-            builder.setCommand(command);
+            // Header
+            SiteWhere.DeviceEvent.Header.Builder headerBuilder = SiteWhere.DeviceEvent.Header.newBuilder();
+            // Command
+            headerBuilder.setCommand(command);
+            // Device Token
+            headerBuilder.setDeviceToken(GOptionalString.newBuilder().setValue(deviceToken));
+
             if (originator != null) {
-                builder.setOriginator(originator);
+                headerBuilder.setOriginator(GOptionalString.newBuilder().setValue(originator));
             }
-            builder.build().writeDelimitedTo(out);
-            message.writeDelimitedTo(out);
+            headerBuilder.build().writeDelimitedTo(out);
+            payload.writeDelimitedTo(out);
             byte[] encoded = out.toByteArray();
             StringBuffer hex = new StringBuffer();
             for (byte current : encoded) {
@@ -409,14 +447,19 @@ public class SiteWhereMessageClient {
      * Send command to SiteWhere.
      */
     protected void sendCommand(byte[] payload) throws SiteWhereMessagingException {
-        try {
-            mSitewhere.send(payload);
-        } catch (RemoteException e) {
-            throw new SiteWhereMessagingException("Unable to send command.", e);
+        if (mSitewhere != null) {
+            try {
+                mSitewhere.send(payload);
+            } catch (RemoteException e) {
+                throw new SiteWhereMessagingException("Unable to send command.", e);
+            }
         }
     }
 
-    protected void onReceivedCustomCommand(byte[] payload) {
+    protected void onReceivedCustomCommand(Object caller, byte[] payload) {
+        if (caller == null) {
+            return;
+        }
         try {
             ByteArrayInputStream encoded = new ByteArrayInputStream(payload);
             ObjectInputStream in = new ObjectInputStream(encoded);
@@ -433,17 +476,17 @@ public class SiteWhereMessageClient {
                 parametersWithOriginator[i] = parameters[i];
                 i++;
             }
-            IDeviceEventOriginator originator = (IDeviceEventOriginator) in.readObject();
-            typesWithOriginator[i] = IDeviceEventOriginator.class;
+            DeviceEventOriginator originator = (DeviceEventOriginator) in.readObject();
+            typesWithOriginator[i] = DeviceEventOriginator.class;
             parametersWithOriginator[i] = originator;
 
             Method method = null;
             try {
-                method = getClass().getMethod(commandName, typesWithOriginator);
-                method.invoke(this, parametersWithOriginator);
+                method = caller.getClass().getMethod(commandName, typesWithOriginator);
+                method.invoke(caller, parametersWithOriginator);
             } catch (NoSuchMethodException e) {
-                method = getClass().getMethod(commandName, types);
-                method.invoke(this, parameters);
+                method = caller.getClass().getMethod(commandName, types);
+                method.invoke(caller, parameters);
             }
         } catch (StreamCorruptedException e) {
             Log.e(TAG, "Unable to decode command in hybrid mode.", e);

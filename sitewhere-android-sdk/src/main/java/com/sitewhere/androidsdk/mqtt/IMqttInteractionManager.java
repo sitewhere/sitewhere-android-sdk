@@ -26,12 +26,13 @@ public interface IMqttInteractionManager {
 
 	/**
 	 * Handle topic-related connect logic.
-	 * 
-	 * @param hardwareId
+	 *
+	 * @param tenant
+	 * @param deviceToken
 	 * @param connection
 	 * @throws SiteWhereMqttException
 	 */
-	public void connect(String hardwareId, BlockingConnection connection)
+	public void connect(String tenant, String deviceToken, BlockingConnection connection)
 			throws SiteWhereMqttException;
 
 	/**
@@ -51,12 +52,13 @@ public interface IMqttInteractionManager {
 
 	/**
 	 * Handle topic-related disconnect logic.
-	 * 
-	 * @param hardwareId
+	 *
+	 * @param tenant
+	 * @param deviceToken
 	 * @param connection
 	 * @throws SiteWhereMqttException
 	 */
-	public void disconnect(String hardwareId, BlockingConnection connection)
+	public void disconnect(String tenant, String deviceToken, BlockingConnection connection)
 			throws SiteWhereMqttException;
 
 	/**

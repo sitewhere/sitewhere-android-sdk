@@ -34,13 +34,22 @@ import java.util.concurrent.Executors;
 public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 
 	/** Topic name for outbound messages */
-	private static final String OUTBOUND_TOPIC = "SiteWhere/input/protobuf";
+	private static final String OUTBOUND_TOPIC = "SiteWhere/%s/input/protobuf";
 
-	/** Topic prefix for inbound system messages */
-	private static final String SYSTEM_TOPIC_PREFIX = "SiteWhere/system/";
+	/** Topic prefix for MQTT messages */
+	private static final String MQTT_TOPIC_PREFIX = "SiteWhere/";
 
-	/** Topic prefix for inbound command messages */
-	private static final String COMMAND_TOPIC_PREFIX = "SiteWhere/commands/";
+	/** SiteWhere Defult tenant */
+	private static final String DEFAULT_TENANT_ID = "default";
+
+	/** SiteWhere default MQTT Message Encoding */
+	private static final String DEFAULT_MESSAGE_ENCODING = "protobuf";
+
+	/** Command topic name */
+	private String commandTopicName;
+
+	/** System topic name */
+	private String systemTopicName;
 
 	/** Topic for receiving commands */
 	private Topic commandTopic;
@@ -57,6 +66,18 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	/** Used to handle message processing */
 	private ExecutorService executor;
 
+	/** Message encoding */
+	private String encoding = DEFAULT_MESSAGE_ENCODING;
+
+	/** Default tenant id */
+	private String tenantId = DEFAULT_TENANT_ID;
+
+	public DefaultMqttInteractionManager() {
+		super();
+		this.commandTopicName = MQTT_TOPIC_PREFIX  + "command/";
+		this.systemTopicName = MQTT_TOPIC_PREFIX  + "system/";
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -64,15 +85,16 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	 * org.fusesource.mqtt.client.BlockingConnection)
 	 */
 	@Override
-	public void connect(String hardwareId, BlockingConnection connection) throws SiteWhereMqttException {
+	public void connect(String tenantId, String deviceToken, BlockingConnection connection) throws SiteWhereMqttException {
 		this.connection = connection;
 		if ((executor != null) && (!executor.isShutdown())) {
 			executor.shutdownNow();
 		}
 		executor = Executors.newSingleThreadExecutor();
 		executor.submit(new MqttMessageProcessor());
-		commandTopic = new Topic(getCommandTopicPrefix() + hardwareId, QoS.EXACTLY_ONCE);
-		systemTopic = new Topic(getSystemTopicPrefix() + hardwareId, QoS.EXACTLY_ONCE);
+		commandTopic = new Topic(getCommandTopicName() + deviceToken, QoS.EXACTLY_ONCE);
+		systemTopic = new Topic(getSystemTopicName() + deviceToken, QoS.EXACTLY_ONCE);
+		this.tenantId = tenantId;
 		try {
 			Log.d(MqttService.TAG, "System command topic: " + systemTopic.name());
 			Log.d(MqttService.TAG, "Custom command topic: " + commandTopic.name());
@@ -122,10 +144,10 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
          * org.fusesource.mqtt.client.BlockingConnection)
          */
 	@Override
-	public void disconnect(String hardwareId, BlockingConnection connection) throws SiteWhereMqttException {
+	public void disconnect(String tenantId, String deviceToken, BlockingConnection connection) throws SiteWhereMqttException {
 		try {
-			connection.unsubscribe(new String[] { getCommandTopicPrefix() + hardwareId,
-					getSystemTopicPrefix() + hardwareId });
+			connection.unsubscribe(new String[] { getCommandTopicName() + deviceToken,
+					getSystemTopicName() + deviceToken });
 			this.connection = null;
 			this.executor.shutdownNow();
 			Log.d(MqttService.TAG, "Unsubscribed from topics successfully.");
@@ -149,9 +171,9 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 					Message message = connection.receive();
 					message.ack();
 					Log.d(MqttService.TAG, "Received message from: " + message.getTopic());
-					if (message.getTopic().startsWith(getCommandTopicPrefix())) {
+					if (message.getTopic().startsWith(getCommandTopicName())) {
 						callback.onCustomCommandReceived(message.getTopic(), message.getPayload());
-					} else if (message.getTopic().startsWith(getSystemTopicPrefix())) {
+					} else if (message.getTopic().startsWith(getSystemTopicName())) {
 						callback.onSystemCommandReceived(message.getTopic(), message.getPayload());
 					} else {
 						callback.onEventMessageReceived(message.getTopic(), message.getPayload());
@@ -188,24 +210,24 @@ public class DefaultMqttInteractionManager implements IMqttInteractionManager {
 	 * @return
 	 */
 	protected String getOutboundTopic() {
-		return OUTBOUND_TOPIC;
+		StringBuilder builder = new StringBuilder();
+		builder.append(String.format(OUTBOUND_TOPIC, tenantId));
+		return builder.toString();
 	}
 
 	/**
-	 * Return topic prefix for command messages.
-	 * 
+	 * Get name for command topic.
 	 * @return
 	 */
-	protected String getCommandTopicPrefix() {
-		return COMMAND_TOPIC_PREFIX;
+	protected String getCommandTopicName() {
+		return commandTopicName;
 	}
 
 	/**
-	 * Return topic prefix for system messages.
-	 * 
+	 * Get name for system topic.
 	 * @return
 	 */
-	protected String getSystemTopicPrefix() {
-		return SYSTEM_TOPIC_PREFIX;
+	protected String getSystemTopicName() {
+		return systemTopicName;
 	}
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v7.preference.PreferenceCategory
+        android:title="@string/pref_sw_api">
+        <android.support.v7.preference.EditTextPreference
+            android:key="sw_tenant"
+            android:title="@string/pref_sw_api_tenant_title"
+            android:summary="@string/pref_sw_api_tenant_summary"
+            android:dialogMessage="Dialog Message"
+            android:defaultValue="default" />
+        <android.support.v7.preference.EditTextPreference
+            android:key="sw_api_uri"
+            android:title="@string/pref_sw_api_uri_title"
+            android:summary="@string/pref_sw_api_uri_summary"
+            android:dialogMessage="@string/pref_sw_api_uri_dialog_title"/>
+    </android.support.v7.preference.PreferenceCategory>
+    <android.support.v7.preference.PreferenceCategory
+        android:title="@string/pref_sw_mqtt" >
+        <android.support.v7.preference.EditTextPreference
+            android:key="sw_mqtt_uri"
+            android:title="@string/pref_sw_mqtt_uri_title"
+            android:summary="@string/pref_sw_mqtt_uri_summary"
+            android:dialogMessage="@string/pref_sw_mqtt_uri_dialog_title" />
+    </android.support.v7.preference.PreferenceCategory>
+</android.support.v7.preference.PreferenceScreen>

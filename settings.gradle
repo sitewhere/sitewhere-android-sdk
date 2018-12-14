@@ -1,1 +1,2 @@
 include ':sitewhere-android-sdk'
+include ':example'

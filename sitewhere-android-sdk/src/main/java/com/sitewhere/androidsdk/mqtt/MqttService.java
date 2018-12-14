@@ -62,8 +62,9 @@ public class MqttService extends Service {
 	/** MQTT connection */
 	private BlockingConnection connection;
 
+	// Start up management entities.
 	/** Manages interactions with MQTT pub/sub */
-	private IMqttInteractionManager mqttManager;
+	private IMqttInteractionManager mqttManager = new DefaultMqttInteractionManager();
 
 	/** Manages client registration and notification */
 	private RegistrationManager registrationManager;
@@ -86,8 +87,6 @@ public class MqttService extends Service {
 		// Reset connection state.
 		connectionState = MqttConnectionState.Disconnected;
 
-		// Start up management entities.
-		mqttManager = new DefaultMqttInteractionManager();
 		registrationManager = new RegistrationManager();
 		mqttManager.setCallback(registrationManager);
 
@@ -192,7 +191,10 @@ public class MqttService extends Service {
 					connection = mqtt.blockingConnection();
 					connection.connect();
 					Log.d(TAG, "Connected to MQTT.");
-					mqttManager.connect(configuration.getDeviceHardwareId(), connection);
+					mqttManager.connect(
+							configuration.getTenant(),
+							configuration.getDeviceToken(),
+							connection);
 					registrationManager.connected();
 					connectionState = MqttConnectionState.Connected;
 				} catch (URISyntaxException e) {
@@ -213,7 +215,10 @@ public class MqttService extends Service {
 		if (isMqttConnected()) {
 			try {
 				Log.d(TAG, "Disconnecting from MQTT...");
-				mqttManager.disconnect(configuration.getDeviceHardwareId(), connection);
+				mqttManager.disconnect(
+						configuration.getTenant(),
+						configuration.getDeviceToken(),
+						connection);
 				connection.disconnect();
 				connection = null;
 				connectionState = MqttConnectionState.Disconnected;
@@ -308,15 +313,15 @@ public class MqttService extends Service {
 			this.configuration = inConfig;
 			Log.d(TAG,
 					"Starting MQTT service for: host->" + configuration.getBrokerHostname()
-							+ " port->" + configuration.getBrokerPort() + " hardwareId->"
-							+ configuration.getDeviceHardwareId());
+							+ " port->" + configuration.getBrokerPort() + " token->"
+							+ configuration.getDeviceToken());
 		} else if (!inConfig.equals(this.configuration)) {
 			this.configuration = inConfig;
 			Log.d(TAG,
 					"Settings changed. Will reconnect with settings: host->"
 							+ configuration.getBrokerHostname() + " port->"
-							+ configuration.getBrokerPort() + " hardwareId->"
-							+ configuration.getDeviceHardwareId());
+							+ configuration.getBrokerPort() + " token->"
+							+ configuration.getDeviceToken());
 		} else {
 			needsReconnect = false;
 		}
@@ -370,11 +375,13 @@ public class MqttService extends Service {
 		 */
 		@Override
 		public void send(byte[] payload) throws RemoteException {
-			try {
-				mqttManager.send(payload);
-			} catch (SiteWhereMqttException e) {
-				Log.e(TAG, "Error sending message.", e);
-				throw new RemoteException();
+			if (connection != null && connection.isConnected()) {
+				try {
+					mqttManager.send(payload);
+				} catch (SiteWhereMqttException e) {
+					Log.e(TAG, "Error sending message.", e);
+					throw new RemoteException();
+				}
 			}
 		}
 

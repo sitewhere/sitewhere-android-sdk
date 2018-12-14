@@ -34,14 +34,20 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 	/** Default MQTT broker port */
 	public static final int DEFAULT_BROKER_PORT = 1883;
 
+	/** Default tenant */
+	private static final String DEFAULT_TENANT = "default";
+
 	/** MQTT broker host name */
 	private String brokerHostname;
 
 	/** MQTT broker port */
 	private Integer brokerPort = DEFAULT_BROKER_PORT;
 
-	/** Device hardware id */
-	private String deviceHardwareId;
+	/** Device token */
+	private String deviceToken;
+
+	/** Tenant */
+	private String tenant = DEFAULT_TENANT;
 
 	public MqttServicePreferences() {
 	}
@@ -49,7 +55,8 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 	public MqttServicePreferences(Parcel parcel) {
 		this.brokerHostname = parcel.readString();
 		this.brokerPort = parcel.readInt();
-		this.deviceHardwareId = parcel.readString();
+		this.deviceToken = parcel.readString();
+		this.tenant = parcel.readString();
 	}
 
 	/**
@@ -87,8 +94,10 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 				IMqttServicePreferences.PREF_SITEWHERE_MQTT_BROKER_HOSTNAME, null));
 		mqtt.setBrokerPort(prefs.getInt(IMqttServicePreferences.PREF_SITEWHERE_MQTT_BROKER_PORT,
 				DEFAULT_BROKER_PORT));
-		mqtt.setDeviceHardwareId(prefs.getString(
-				IMqttServicePreferences.PREF_SITEWHERE_DEVICE_HARDWARE_ID, null));
+		mqtt.setDeviceToken(prefs.getString(
+				IMqttServicePreferences.PREF_SITEWHERE_DEVICE_TOKEN, null));
+		mqtt.setTenant(prefs.getString(
+		        IMqttServicePreferences.PREF_SITEWHERE_TENANT, null));
 		return mqtt;
 	}
 
@@ -110,11 +119,16 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 			editor.putInt(IMqttServicePreferences.PREF_SITEWHERE_MQTT_BROKER_PORT,
 					updated.getBrokerPort());
 		}
-		if (updated.getDeviceHardwareId() != null) {
-			editor.putString(IMqttServicePreferences.PREF_SITEWHERE_DEVICE_HARDWARE_ID,
-					updated.getDeviceHardwareId());
+		if (updated.getDeviceToken() != null) {
+			editor.putString(IMqttServicePreferences.PREF_SITEWHERE_DEVICE_TOKEN,
+					updated.getDeviceToken());
 		}
-		editor.commit();
+		if (updated.getTenant() != null) {
+			editor.putString(IMqttServicePreferences.PREF_SITEWHERE_TENANT,
+					updated.getTenant());
+		}
+
+		editor.apply();
 		return MqttServicePreferences.loadFrom(prefs);
 	}
 
@@ -149,12 +163,20 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 	 * 
 	 * @see com.sitewhere.android.mqtt.preferences.IMqttServicePreferences#getDeviceHardwareId()
 	 */
-	public String getDeviceHardwareId() {
-		return deviceHardwareId;
+	public String getDeviceToken() {
+		return deviceToken;
 	}
 
-	public void setDeviceHardwareId(String deviceHardwareId) {
-		this.deviceHardwareId = deviceHardwareId;
+	public void setDeviceToken(String deviceToken) {
+		this.deviceToken = deviceToken;
+	}
+
+	public String getTenant() {
+		return this.tenant;
+	}
+
+	public void setTenant(String tenant) {
+		this.tenant = tenant;
 	}
 
 	/*
@@ -172,8 +194,8 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 			if ((brokerPort == null) || (!brokerPort.equals(other.getBrokerPort()))) {
 				return false;
 			}
-			if ((deviceHardwareId == null)
-					|| (!deviceHardwareId.equals(other.getDeviceHardwareId()))) {
+			if ((deviceToken == null)
+					|| (!deviceToken.equals(other.getDeviceToken()))) {
 				return false;
 			}
 			return true;
@@ -201,7 +223,8 @@ public class MqttServicePreferences implements IMqttServicePreferences {
 	public void writeToParcel(Parcel parcel, int flags) {
 		parcel.writeString(getBrokerHostname());
 		parcel.writeInt(getBrokerPort());
-		parcel.writeString(getDeviceHardwareId());
+		parcel.writeString(getDeviceToken());
+		parcel.writeString(getTenant());
 	}
 
 	public static final Parcelable.Creator<MqttServicePreferences> CREATOR = new Parcelable.Creator<MqttServicePreferences>() {
