@@ -33,12 +33,11 @@ android {
 dependencies {
     api ('com.android.support:appcompat-v7:28.0.0')
     api ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
-    api ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
+    api ("com.sitewhere:sitewhere-device-protobuf:2.0.1")
     api ("com.sitewhere:sitewhere-java-model:${rootProject.ext['sitewhere-java-api.version']}")
     api ("com.sitewhere:sitewhere-java-client:${rootProject.ext['sitewhere-java-api.version']}")
     api 'org.springframework.android:spring-android-rest-template:1.0.1.RELEASE'
     api ("org.fusesource.mqtt-client:mqtt-client:${rootProject.ext['mqtt-client.version']}")
-    api ("com.sitewhere:sitewhere-device-protobuf:2.0.0-SNAPSHOT")
 }
 
 
